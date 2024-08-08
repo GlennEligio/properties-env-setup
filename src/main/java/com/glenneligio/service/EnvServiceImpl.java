@@ -32,7 +32,14 @@ public class EnvServiceImpl implements EnvService {
         int lineNumber = 1;
 
         for(String envFileEntry : envFileLines) {
-            if(envFileEntry.trim().isBlank()) {
+            String envFileEntryValue = envFileEntry;
+            int commentCharIndex = envFileEntry.indexOf("#");
+            if(commentCharIndex != -1) {
+                logger.info("Cleaning the line by removing comment in line {}", lineNumber);
+                envFileEntryValue = envFileEntry.substring(0, commentCharIndex).trim();
+            }
+
+            if(envFileEntryValue.trim().isBlank()) {
                 logger.debug("Empty line, skipped");
                 EnvFileEntry entry = new EnvFileEntry(envFileEntry, null,null, false, false, lineNumber, false, false, false);
                 envFileEntries.add(entry);
@@ -40,17 +47,17 @@ public class EnvServiceImpl implements EnvService {
                 continue;
             }
 
-            int equalsIndex = envFileEntry.indexOf("=");
+            int equalsIndex = envFileEntryValue.indexOf("=");
             if(equalsIndex == -1) {
-                logger.debug("Invalid entry, skipped: {}", envFileEntry);
-                EnvFileEntry entry = new EnvFileEntry(envFileEntry, null, null, false, false, lineNumber, false, false, false);
+                logger.debug("Invalid entry, skipped: {}", envFileEntryValue);
+                EnvFileEntry entry = new EnvFileEntry(envFileEntryValue, null, null, false, false, lineNumber, false, false, false);
                 envFileEntries.add(entry);
                 lineNumber++;
                 continue;
             }
 
-            String envName = envFileEntry.substring(0, equalsIndex).trim();
-            String envValue = envFileEntry.substring(equalsIndex + 1).trim();
+            String envName = envFileEntryValue.substring(0, equalsIndex).trim();
+            String envValue = envFileEntryValue.substring(equalsIndex + 1).trim();
             logger.debug("envName: {}", envName);
             logger.debug("envValue: {}", envValue);
 

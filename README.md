@@ -32,5 +32,4 @@ Command used to setup the application.properties file using k8s yaml file by inj
 | `-i`, `-image`       | `string` | **Required**. Image name of the container where env file will be fetched from | client-service         |
 
 ## Example usage
-1. java -jar .\properties-env-setup-1.0-SNAPSHOT.jar setup properties -p .\test-data\application.properties -y D:\Study\programming\Projects\properties-env-setup\properties-env-setup\test-data
-   \sample-deployment.yml -i client-service
+1. java -jar .\properties-env-setup-1.0-SNAPSHOT.jar setup properties -p .\test-data\application.properties -y .\test-data\sample-deployment.yml -i client-service

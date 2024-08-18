@@ -1,11 +1,10 @@
 
-W
-'src/main/java/com/glenneligio/Main.java,3\9\3907912980939d608d819354ddc1207e2628e3af
-e
-5src/main/java/com/glenneligio/service/EnvService.java,6\e\6e0331b6f7cc56ecea8ce369b71c942d14310100
-e
-5src/main/java/com/glenneligio/model/EnvFileEntry.java,a\5\a5ea6ef1e142cf344086132f621f7beb9f997c14
-i
-9src/main/java/com/glenneligio/model/YamlFileEnvEntry.java,f\b\fb4780aeacc60521e7a5d2f26eb6c12cf8f9ba43
-f
-6src/main/java/com/glenneligio/service/YamlService.java,3\b\3b8e83ed13881e9f05478715285a530fb95e998e
+7
+pom.xml,4\4\442292b8a7efeabbe4cc176709b833b1792140ec
+9
+	README.md,8\e\8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
+:
+
+.gitignore,a\5\a5cc2925ca8258af241be7e5b0381edf30266302
+G
+test-data/.env-injected,c\d\cd7fb6fae99882c7716ab235b115ef763a40e8af

@@ -1,7 +1,6 @@
 package com.glenneligio.service;
 
 import com.glenneligio.model.EnvFileEntry;
-import com.glenneligio.model.PropertiesFileEntry;
 import com.glenneligio.model.YamlFileEnvEntry;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -32,7 +31,14 @@ public class EnvServiceImpl implements EnvService {
         int lineNumber = 1;
 
         for(String envFileEntry : envFileLines) {
-            if(envFileEntry.trim().isBlank()) {
+            String envFileEntryValue = envFileEntry;
+            int commentCharIndex = envFileEntry.indexOf("#");
+            if(commentCharIndex != -1) {
+                logger.info("Cleaning the line by removing comment in line {}", lineNumber);
+                envFileEntryValue = envFileEntry.substring(0, commentCharIndex).trim();
+            }
+
+            if(envFileEntryValue.trim().isBlank()) {
                 logger.debug("Empty line, skipped");
                 EnvFileEntry entry = new EnvFileEntry(envFileEntry, null,null, false, false, lineNumber, false, false, false);
                 envFileEntries.add(entry);
@@ -40,17 +46,17 @@ public class EnvServiceImpl implements EnvService {
                 continue;
             }
 
-            int equalsIndex = envFileEntry.indexOf("=");
+            int equalsIndex = envFileEntryValue.indexOf("=");
             if(equalsIndex == -1) {
-                logger.debug("Invalid entry, skipped: {}", envFileEntry);
-                EnvFileEntry entry = new EnvFileEntry(envFileEntry, null, null, false, false, lineNumber, false, false, false);
+                logger.debug("Invalid entry, skipped: {}", envFileEntryValue);
+                EnvFileEntry entry = new EnvFileEntry(envFileEntryValue, null, null, false, false, lineNumber, false, false, false);
                 envFileEntries.add(entry);
                 lineNumber++;
                 continue;
             }
 
-            String envName = envFileEntry.substring(0, equalsIndex).trim();
-            String envValue = envFileEntry.substring(equalsIndex + 1).trim();
+            String envName = envFileEntryValue.substring(0, equalsIndex).trim();
+            String envValue = envFileEntryValue.substring(equalsIndex + 1).trim();
             logger.debug("envName: {}", envName);
             logger.debug("envValue: {}", envValue);
 
@@ -80,30 +86,44 @@ public class EnvServiceImpl implements EnvService {
                 .forEach(envFileEntry -> fileContents.put(envFileEntry.getLineNumber(), envFileEntry));
 
         List<String> fileLineEntries = fileContents.entrySet()
-                .stream().sorted(Comparator.comparingInt(mapEntry -> mapEntry.getValue().getLineNumber()))
+                .stream()
+                .sorted(Comparator.comparingInt(mapEntry -> mapEntry.getValue().getLineNumber()))
                 .map(entry -> {
+                    logger.info("Entry value: {}", entry.getValue());
+                    EnvFileEntry envFileEntry = entry.getValue();
                     String fileEntry = entry.getValue().getName();
                     String envName = "";
                     String envValue = "";
-                    if(entry.getValue().isValid() && !entry.getValue().isEnvValueSecret()) {
-                        envName = entry.getValue().getName();
-                        envValue = StringUtils.trimToEmpty(entry.getValue().getEnvValueToInject());
+                    if(envFileEntry.isValid() && envFileEntry.isInjected() && !envFileEntry.isEnvValueSecret()) {
+                        envName = envFileEntry.getName();
+                        envValue = StringUtils.trimToEmpty(envFileEntry.getEnvValueToInject());
                         fileEntry = envName + "=" + envValue;
                     }
-                    if(entry.getValue().isValid() && entry.getValue().isEnvValueSecret()) {
-                        envName = entry.getValue().getName();
-                        envValue = StringUtils.trimToEmpty(entry.getValue().getDefaultValue());
+                    if(envFileEntry.isValid() && !envFileEntry.isInjected()) {
+                        envName = envFileEntry.getName();
+                        envValue = envFileEntry.getDefaultValue();
                         fileEntry = envName + "=" + envValue;
                     }
                     return fileEntry.trim();
                 })
                 .toList();
+        File injectedFile = new File(envFileLocation + "-injected");
+        // remove the existing injectedFile, and create new file
+        if(injectedFile.exists()) {
+            injectedFile.delete();
+            injectedFile.createNewFile();
+        }
 
         Files.write(Path.of(envFileLocation + "-injected"), fileLineEntries, StandardCharsets.UTF_8);
     }
 
     @Override
     public void printReport(List<EnvFileEntry> envFileEntries) {
+        if(envFileEntries.isEmpty()) {
+            logger.info("Empty list of env file entries. Will not be printing report");
+            return;
+        }
+
         logger.info("Invalid entries or empty lines");
         envFileEntries.stream()
                 .filter(entry -> !entry.isValid())

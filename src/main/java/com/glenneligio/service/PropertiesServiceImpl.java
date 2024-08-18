@@ -2,6 +2,7 @@ package com.glenneligio.service;
 
 import com.glenneligio.model.PropertiesFileEntry;
 import com.glenneligio.model.YamlFileEnvEntry;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,14 @@ public class PropertiesServiceImpl implements PropertiesService{
             int lineNumberIndex = 1;
 
             for (String entry : entries) {
-                if(entry.trim().isBlank()) {
+                String entryValue = entry;
+                int commentCharIndex = entryValue.indexOf("#");
+                if(commentCharIndex != -1) {
+                    logger.info("Cleaning the line by removing comment in line {}", entryValue);
+                    entryValue = entryValue.substring(0, commentCharIndex).trim();
+                }
+
+                if(entryValue.trim().isBlank()) {
                     logger.debug("Newline, skipped");
                     PropertiesFileEntry newLineEntry = new PropertiesFileEntry(null, null, null, false, false, lineNumberIndex,false);
                     result.add(newLineEntry);
@@ -36,17 +44,17 @@ public class PropertiesServiceImpl implements PropertiesService{
                     continue;
                 }
 
-                int equalsIndex = entry.indexOf("=");
+                int equalsIndex = entryValue.indexOf("=");
                 if (equalsIndex == -1) {
-                    logger.debug("Invalid property entry: {}", entry);
-                    PropertiesFileEntry invalidEntry = new PropertiesFileEntry(entry, null, null, false, false, lineNumberIndex, false);
+                    logger.debug("Invalid property entry: {}", entryValue);
+                    PropertiesFileEntry invalidEntry = new PropertiesFileEntry(StringUtils.trimToEmpty(entryValue), null, null, false, false, lineNumberIndex, false);
                     result.add(invalidEntry);
                     lineNumberIndex++;
                     continue;
                 }
 
-                String propName = entry.substring(0, equalsIndex).trim();
-                String propValue = entry.substring(equalsIndex + 1).trim();
+                String propName = entryValue.substring(0, equalsIndex).trim();
+                String propValue = entryValue.substring(equalsIndex + 1).trim();
                 logger.debug("propName: {}", propName);
                 logger.debug("propValue: {}", propValue);
 
@@ -54,6 +62,15 @@ public class PropertiesServiceImpl implements PropertiesService{
                     logger.debug("Property entry is not being injected with environment variable, skipped");
                     PropertiesFileEntry skippedEntry = new PropertiesFileEntry(propName, null, propValue, true, false, lineNumberIndex, false);
                     result.add(skippedEntry);
+                    lineNumberIndex++;
+                    continue;
+                }
+
+                if(!propValue.matches("^\\s*\\$\\{[A-Z0-9_]+(:[^}]+)?\\}\\s*$")) {
+                    logger.info("Invalid syntax for property entry value: {}", entryValue);
+                    PropertiesFileEntry invalidEntry = new PropertiesFileEntry(StringUtils.trimToEmpty(entryValue), null, null, false, false, lineNumberIndex, false);
+                    logger.info("Property entry: {}", invalidEntry);
+                    result.add(invalidEntry);
                     lineNumberIndex++;
                     continue;
                 }
@@ -83,10 +100,15 @@ public class PropertiesServiceImpl implements PropertiesService{
 
     @Override
     public void injectEnvFound(List<PropertiesFileEntry> propertiesFileEntries, String propertiesFileLocation) throws IOException {
+        File file = new File(propertiesFileLocation);
+        if(!file.exists() || !file.isFile()) {
+            throw new RuntimeException("Properties file does not exist");
+        }
         List<Integer> linesToBeInjected = propertiesFileEntries.stream()
                 .filter(PropertiesFileEntry::isValid)
                 .filter(PropertiesFileEntry::isValueInjected)
                 .filter(entry -> !entry.isEnvValueSecret())
+                .filter(PropertiesFileEntry::isInjected)
                 .sorted(Comparator.comparingInt(PropertiesFileEntry::getLineNumber))
                 .map(PropertiesFileEntry::getLineNumber)
                 .toList();
@@ -100,11 +122,17 @@ public class PropertiesServiceImpl implements PropertiesService{
                         "${" +
                         propEntry.getEnvUsed() +
                         ":" +
-                        propEntry.getEnvValueToInject() +
+                        StringUtils.trimToEmpty(propEntry.getEnvValueToInject()) +
                         "}";
                 fileContents.set(i-1, fileEntry);
                 propEntry.setInjected(true);
             }
+        }
+
+        File newFileToCreate = new File(propertiesFileLocation + "-injected");
+        if(newFileToCreate.exists()) {
+            newFileToCreate.delete();
+            newFileToCreate.createNewFile();
         }
 
         Files.write(Path.of(propertiesFileLocation + "-injected"), fileContents, StandardCharsets.UTF_8);
@@ -145,7 +173,7 @@ public class PropertiesServiceImpl implements PropertiesService{
     }
 
     @Override
-    public List<PropertiesFileEntry> addNewEnvFromYaml(List<PropertiesFileEntry> currentEnvFileEntries, List<YamlFileEnvEntry> yamlFileEnvEntries) {
+    public List<PropertiesFileEntry> populateEnvFileEntriesWithValuesFromYaml(List<PropertiesFileEntry> currentEnvFileEntries, List<YamlFileEnvEntry> yamlFileEnvEntries) {
         for(PropertiesFileEntry entry : currentEnvFileEntries) {
             for(YamlFileEnvEntry yamlEntry : yamlFileEnvEntries) {
                 if(Objects.nonNull(entry.getEnvUsed()) && Objects.nonNull(yamlEntry.envName())) {
@@ -153,6 +181,7 @@ public class PropertiesServiceImpl implements PropertiesService{
                         entry.setEnvValueToInject(yamlEntry.envValue());
                         entry.setEnvValueSecret(false);
                         entry.setPresentInYaml(true);
+                        entry.setInjected(true);
                     }
                     if(entry.getEnvUsed().equals(yamlEntry.envName()) && yamlEntry.isSecret()) {
                         entry.setEnvValueSecret(true);

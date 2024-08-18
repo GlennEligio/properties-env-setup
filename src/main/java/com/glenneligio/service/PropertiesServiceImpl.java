@@ -10,7 +10,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PropertiesServiceImpl implements PropertiesService{
 
@@ -23,7 +25,7 @@ public class PropertiesServiceImpl implements PropertiesService{
 
         String fileContent;
         try (InputStream inputStream = new FileInputStream(propertiesFileLocation)) {
-            fileContent = new String(inputStream.readAllBytes());
+            fileContent = new String(convert(inputStream));
             logger.debug("File content {}", fileContent);
             String[] entries = fileContent.split("\n");
             int lineNumberIndex = 1;
@@ -36,7 +38,7 @@ public class PropertiesServiceImpl implements PropertiesService{
                     entryValue = entryValue.substring(0, commentCharIndex).trim();
                 }
 
-                if(entryValue.trim().isBlank()) {
+                if(entryValue.trim().length() == 0) {
                     logger.debug("Newline, skipped");
                     PropertiesFileEntry newLineEntry = new PropertiesFileEntry(null, null, null, false, false, lineNumberIndex,false);
                     result.add(newLineEntry);
@@ -111,9 +113,9 @@ public class PropertiesServiceImpl implements PropertiesService{
                 .filter(PropertiesFileEntry::isInjected)
                 .sorted(Comparator.comparingInt(PropertiesFileEntry::getLineNumber))
                 .map(PropertiesFileEntry::getLineNumber)
-                .toList();
+                .collect(Collectors.toList());
 
-        List<String> fileContents = Files.readAllLines(Path.of(propertiesFileLocation));
+        List<String> fileContents = Files.readAllLines(Paths.get(propertiesFileLocation));
         for(int i = 1; i <= fileContents.size(); i++) {
             if(linesToBeInjected.contains(i)) {
                 PropertiesFileEntry propEntry = propertiesFileEntries.get(i-1);
@@ -135,7 +137,7 @@ public class PropertiesServiceImpl implements PropertiesService{
             newFileToCreate.createNewFile();
         }
 
-        Files.write(Path.of(propertiesFileLocation + "-injected"), fileContents, StandardCharsets.UTF_8);
+        Files.write(Paths.get(propertiesFileLocation + "-injected"), fileContents, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -176,14 +178,14 @@ public class PropertiesServiceImpl implements PropertiesService{
     public List<PropertiesFileEntry> populateEnvFileEntriesWithValuesFromYaml(List<PropertiesFileEntry> currentEnvFileEntries, List<YamlFileEnvEntry> yamlFileEnvEntries) {
         for(PropertiesFileEntry entry : currentEnvFileEntries) {
             for(YamlFileEnvEntry yamlEntry : yamlFileEnvEntries) {
-                if(Objects.nonNull(entry.getEnvUsed()) && Objects.nonNull(yamlEntry.envName())) {
-                    if(entry.getEnvUsed().equals(yamlEntry.envName()) && !yamlEntry.isSecret()) {
-                        entry.setEnvValueToInject(yamlEntry.envValue());
+                if(Objects.nonNull(entry.getEnvUsed()) && Objects.nonNull(yamlEntry.getEnvName())) {
+                    if(entry.getEnvUsed().equals(yamlEntry.getEnvName()) && !yamlEntry.isSecret()) {
+                        entry.setEnvValueToInject(yamlEntry.getEnvValue());
                         entry.setEnvValueSecret(false);
                         entry.setPresentInYaml(true);
                         entry.setInjected(true);
                     }
-                    if(entry.getEnvUsed().equals(yamlEntry.envName()) && yamlEntry.isSecret()) {
+                    if(entry.getEnvUsed().equals(yamlEntry.getEnvName()) && yamlEntry.isSecret()) {
                         entry.setEnvValueSecret(true);
                         entry.setPresentInYaml(true);
                     }
@@ -191,5 +193,18 @@ public class PropertiesServiceImpl implements PropertiesService{
             }
         }
         return currentEnvFileEntries;
+    }
+
+    private static byte[] convert(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] data = new byte[1024];
+        int bytesRead;
+
+        while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, bytesRead);
+        }
+
+        buffer.flush();
+        return buffer.toByteArray();
     }
 }

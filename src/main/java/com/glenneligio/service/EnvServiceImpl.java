@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class EnvServiceImpl implements EnvService {
 
@@ -27,7 +29,7 @@ public class EnvServiceImpl implements EnvService {
            return envFileEntries;
         }
 
-        List<String> envFileLines = Files.readAllLines(Path.of(envFileLocation));
+        List<String> envFileLines = Files.readAllLines(Paths.get(envFileLocation));
         int lineNumber = 1;
 
         for(String envFileEntry : envFileLines) {
@@ -38,7 +40,7 @@ public class EnvServiceImpl implements EnvService {
                 envFileEntryValue = envFileEntry.substring(0, commentCharIndex).trim();
             }
 
-            if(envFileEntryValue.trim().isBlank()) {
+            if(envFileEntryValue.trim().length() == 0) {
                 logger.debug("Empty line, skipped");
                 EnvFileEntry entry = new EnvFileEntry(envFileEntry, null,null, false, false, lineNumber, false, false, false);
                 envFileEntries.add(entry);
@@ -60,7 +62,7 @@ public class EnvServiceImpl implements EnvService {
             logger.debug("envName: {}", envName);
             logger.debug("envValue: {}", envValue);
 
-            if(envValue.trim().isBlank()) {
+            if(envValue.trim().length() == 0) {
                 logger.debug("Entry have no default value: {}", envName);
                 EnvFileEntry entry = new EnvFileEntry(envName, "", null, true, false, lineNumber, false, false, false);
                 envFileEntries.add(entry);
@@ -106,7 +108,7 @@ public class EnvServiceImpl implements EnvService {
                     }
                     return fileEntry.trim();
                 })
-                .toList();
+                .collect(Collectors.toList());
         File injectedFile = new File(envFileLocation + "-injected");
         // remove the existing injectedFile, and create new file
         if(injectedFile.exists()) {
@@ -114,7 +116,7 @@ public class EnvServiceImpl implements EnvService {
             injectedFile.createNewFile();
         }
 
-        Files.write(Path.of(envFileLocation + "-injected"), fileLineEntries, StandardCharsets.UTF_8);
+        Files.write(Paths.get(envFileLocation + "-injected"), fileLineEntries, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -167,14 +169,14 @@ public class EnvServiceImpl implements EnvService {
     @Override
     public List<EnvFileEntry> addNewEnvFromYaml(List<EnvFileEntry> currentEnvFileEntries, List<YamlFileEnvEntry> yamlFileEnvEntries) {
         // add new EnvFileEntry for env in yaml that is not present in .env file
-        List<String> envNames = currentEnvFileEntries.stream().map(EnvFileEntry::getName).toList();
+        List<String> envNames = currentEnvFileEntries.stream().map(EnvFileEntry::getName).collect(Collectors.toList());
         AtomicInteger lineNumbersForNewEnv = new AtomicInteger(currentEnvFileEntries.size() + 1);
         return yamlFileEnvEntries
                 .stream()
-                .filter(yamlFileEnvEntry -> !envNames.contains(yamlFileEnvEntry.envName()))
-                .map(yamlFileEnvEntry -> new EnvFileEntry(yamlFileEnvEntry.envName(),
+                .filter(yamlFileEnvEntry -> !envNames.contains(yamlFileEnvEntry.getEnvName()))
+                .map(yamlFileEnvEntry -> new EnvFileEntry(yamlFileEnvEntry.getEnvName(),
                         null,
-                        yamlFileEnvEntry.envValue(),
+                        yamlFileEnvEntry.getEnvValue(),
                         true,
                         false,
                         lineNumbersForNewEnv.getAndIncrement(),
@@ -182,7 +184,7 @@ public class EnvServiceImpl implements EnvService {
                         true,
                         false
                 ))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -190,14 +192,14 @@ public class EnvServiceImpl implements EnvService {
         // populate the EnvFileEntry with the values present in yaml file
         for(EnvFileEntry entry : currentEnvFileEnties) {
             for(YamlFileEnvEntry yamlEntry : yamlFileEnvEntries) {
-                if(Objects.nonNull(entry.getName()) && Objects.nonNull(yamlEntry.envName())) {
-                    if(entry.getName().equals(yamlEntry.envName()) && !yamlEntry.isSecret()) {
-                        entry.setEnvValueToInject(yamlEntry.envValue());
+                if(Objects.nonNull(entry.getName()) && Objects.nonNull(yamlEntry.getEnvName())) {
+                    if(entry.getName().equals(yamlEntry.getEnvName()) && !yamlEntry.isSecret()) {
+                        entry.setEnvValueToInject(yamlEntry.getEnvValue());
                         entry.setEnvValueSecret(false);
                         entry.setInjected(true);
                         entry.setPresentInYaml(true);
                     }
-                    if(entry.getName().equals(yamlEntry.envName()) && yamlEntry.isSecret()) {
+                    if(entry.getName().equals(yamlEntry.getEnvName()) && yamlEntry.isSecret()) {
                         entry.setEnvValueSecret(true);
                         entry.setPresentInYaml(true);
                     }

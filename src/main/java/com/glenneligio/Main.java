@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Cli(name = "setup",
         description = "PROPERTIES ENV SETUP CLI",
@@ -18,7 +19,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        logger.info("Args: {}", Arrays.stream(args).toList());
+        logger.info("Args: {}", Arrays.stream(args).collect(Collectors.toList()));
         com.github.rvesse.airline.Cli<Runnable> cli = new com.github.rvesse.airline.Cli<>(Main.class);
         Runnable cmd = cli.parse(args);
         cmd.run();

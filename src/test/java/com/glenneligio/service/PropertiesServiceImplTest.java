@@ -5,6 +5,7 @@ import com.glenneligio.model.PropertiesFileEntry;
 import com.glenneligio.model.YamlFileEnvEntry;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Files;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -133,7 +134,7 @@ public class PropertiesServiceImplTest {
                 false,
                 12,
                 false);
-        validPropertyFileEntries.addAll(List.of(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11));
+        validPropertyFileEntries.addAll(Lists.list(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11));
     }
 
     private void populateValidYamlEnvFileEntries() {
@@ -143,7 +144,7 @@ public class PropertiesServiceImplTest {
         y1 = new YamlFileEnvEntry("DB_PORT", "1443", false);
         // secretYamlEnvEntry1
         y2 = new YamlFileEnvEntry("SECRET_API_KEY", null, true);
-        validYamlEnvFileEntries = new ArrayList<>(List.of(y0, y1, y2));
+        validYamlEnvFileEntries = new ArrayList<>(Lists.list(y0, y1, y2));
     }
 
     // getPropertiesFileEntriesFromPropertiesFile
@@ -163,17 +164,17 @@ public class PropertiesServiceImplTest {
         PropertiesService propertiesService = new PropertiesServiceImpl();
         List<PropertiesFileEntry> updatedPropertyFileEntries = new ArrayList<>(validPropertyFileEntries);
         PropertiesFileEntry updatedP0 = updatedPropertyFileEntries.get(0);
-        updatedP0.setEnvValueToInject(y0.envValue());
+        updatedP0.setEnvValueToInject(y0.getEnvValue());
         updatedP0.setEnvValueSecret(false);
         updatedP0.setPresentInYaml(true);
         updatedPropertyFileEntries.set(0, updatedP0);
         PropertiesFileEntry updatedP2 = updatedPropertyFileEntries.get(2);
-        updatedP2.setEnvValueToInject(y1.envValue());
+        updatedP2.setEnvValueToInject(y1.getEnvValue());
         updatedP2.setEnvValueSecret(false);
         updatedP2.setPresentInYaml(true);
         updatedPropertyFileEntries.set(2, updatedP2);
         PropertiesFileEntry updatedP3 = updatedPropertyFileEntries.get(3);
-        updatedP3.setEnvValueToInject(y2.envValue());
+        updatedP3.setEnvValueToInject(y2.getEnvValue());
         updatedP3.setEnvValueSecret(true);
         updatedP3.setPresentInYaml(true);
         updatedPropertyFileEntries.set(3, updatedP3);
@@ -191,12 +192,12 @@ public class PropertiesServiceImplTest {
         PropertiesService propertiesService = new PropertiesServiceImpl();
         List<PropertiesFileEntry> updatedPropertyFileEntries = new ArrayList<>(validPropertyFileEntries);
         PropertiesFileEntry updatedP0 = updatedPropertyFileEntries.get(0);
-        updatedP0.setEnvValueToInject(y0.envValue());
+        updatedP0.setEnvValueToInject(y0.getEnvValue());
         updatedP0.setEnvValueSecret(false);
         updatedP0.setPresentInYaml(true);
         updatedPropertyFileEntries.set(0, updatedP0);
         PropertiesFileEntry updatedP2 = updatedPropertyFileEntries.get(2);
-        updatedP2.setEnvValueToInject(y1.envValue());
+        updatedP2.setEnvValueToInject(y1.getEnvValue());
         updatedP2.setEnvValueSecret(false);
         updatedP2.setPresentInYaml(true);
         updatedPropertyFileEntries.set(2, updatedP2);
@@ -209,13 +210,13 @@ public class PropertiesServiceImplTest {
         PropertiesService propertiesService = new PropertiesServiceImpl();
         List<PropertiesFileEntry> updatedPropertyFileEntries = new ArrayList<>(validPropertyFileEntries);
         PropertiesFileEntry updatedP0 = updatedPropertyFileEntries.get(0);
-        updatedP0.setEnvValueToInject(y0.envValue());
+        updatedP0.setEnvValueToInject(y0.getEnvValue());
         updatedP0.setEnvValueSecret(false);
         updatedP0.setPresentInYaml(true);
         updatedP0.setInjected(true);
         updatedPropertyFileEntries.set(0, updatedP0);
         PropertiesFileEntry updatedP2 = updatedPropertyFileEntries.get(2);
-        updatedP2.setEnvValueToInject(y1.envValue());
+        updatedP2.setEnvValueToInject(y1.getEnvValue());
         updatedP2.setEnvValueSecret(false);
         updatedP2.setPresentInYaml(true);
         updatedP2.setInjected(true);
@@ -238,19 +239,19 @@ public class PropertiesServiceImplTest {
         PropertiesService propertiesService = new PropertiesServiceImpl();
         List<PropertiesFileEntry> updatedPropertyFileEntries = new ArrayList<>(validPropertyFileEntries);
         PropertiesFileEntry updatedP0 = updatedPropertyFileEntries.get(0);
-        updatedP0.setEnvValueToInject(y0.envValue());
+        updatedP0.setEnvValueToInject(y0.getEnvValue());
         updatedP0.setEnvValueSecret(false);
         updatedP0.setPresentInYaml(true);
         updatedP0.setInjected(true);
         updatedPropertyFileEntries.set(0, updatedP0);
         PropertiesFileEntry updatedP2 = updatedPropertyFileEntries.get(2);
-        updatedP2.setEnvValueToInject(y1.envValue());
+        updatedP2.setEnvValueToInject(y1.getEnvValue());
         updatedP2.setEnvValueSecret(false);
         updatedP2.setPresentInYaml(true);
         updatedP2.setInjected(true);
         updatedPropertyFileEntries.set(2, updatedP2);
         PropertiesFileEntry updatedP3 = updatedPropertyFileEntries.get(3);
-        updatedP3.setEnvValueToInject(y2.envValue());
+        updatedP3.setEnvValueToInject(y2.getEnvValue());
         updatedP3.setEnvValueSecret(true);
         updatedP3.setPresentInYaml(true);
         updatedPropertyFileEntries.set(3, updatedP3);

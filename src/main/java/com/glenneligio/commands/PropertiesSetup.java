@@ -67,7 +67,7 @@ public class PropertiesSetup implements Runnable {
         List<YamlFileEnvEntry> yamlEnvEntries = yamlService.getYamlFileEnvEntries(yamlFile, containerImageName);
         logger.info("YAML env entries");
         for(YamlFileEnvEntry entry : yamlEnvEntries) {
-            logger.info("Entry - name: {}, value: {}, isSecret: {}", StringUtils.trimToEmpty(entry.envName()), StringUtils.trimToEmpty(entry.envValue()), entry.isSecret());
+            logger.info("Entry - name: {}, value: {}, isSecret: {}", StringUtils.trimToEmpty(entry.getEnvName()), StringUtils.trimToEmpty(entry.getEnvValue()), entry.isSecret());
         }
 
         List<PropertiesFileEntry> populatedPropEntries = propertiesService.populateEnvFileEntriesWithValuesFromYaml(propertiesEntries, yamlEnvEntries);

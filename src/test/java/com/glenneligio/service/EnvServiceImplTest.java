@@ -4,6 +4,7 @@ import com.glenneligio.model.EnvFileEntry;
 import com.glenneligio.model.YamlFileEnvEntry;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Files;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ public class EnvServiceImplTest {
         e5 = new EnvFileEntry("SECRET_API_KEY", "defaultSecretApiKey", null, true, false, 6, false, false, false);
         // entryWithNoDefaultValue2
         e6 = new EnvFileEntry("ENV_NOT_IN_YAML", "", null, true, false, 7, false, false, false);
-        validEnvFileEntries = new ArrayList<>(List.of(e0,
+        validEnvFileEntries = new ArrayList<>(Lists.list(e0,
                 e1,
                 e2,
                 e3,
@@ -69,7 +70,7 @@ public class EnvServiceImplTest {
         y1 = new YamlFileEnvEntry("DB_PORT", "1443", false);
         // secretYamlEnvEntry1
         y2 = new YamlFileEnvEntry("SECRET_API_KEY", null, true);
-        validYamlEnvFileEntries = new ArrayList<>(List.of(y0, y1, y2));
+        validYamlEnvFileEntries = new ArrayList<>(Lists.list(y0, y1, y2));
     }
 
     @Test
@@ -103,10 +104,10 @@ public class EnvServiceImplTest {
     @Test
     void givenListOfEnvFileEntriesAndYamlEnvEntries_whenThereIsMatchingNonSecretAndSecretEnv_returnsCorrectlyPopulatedEnvFileEntriesList() {
         EnvService envService = new EnvServiceImpl();
-        EnvFileEntry updatedNonSecretEnvFile1 = new EnvFileEntry("DB_HOST", "defaultLocalHost", y0.envValue(), true, true, 1, false, false, true);
-        EnvFileEntry updatedNonSecretEnvFile2 = new EnvFileEntry("DB_PORT", "defaultPort", y1.envValue(), true, true, 2, false, false, true);
+        EnvFileEntry updatedNonSecretEnvFile1 = new EnvFileEntry("DB_HOST", "defaultLocalHost", y0.getEnvValue(), true, true, 1, false, false, true);
+        EnvFileEntry updatedNonSecretEnvFile2 = new EnvFileEntry("DB_PORT", "defaultPort", y1.getEnvValue(), true, true, 2, false, false, true);
         EnvFileEntry updatedSecretEnvFile1 = new EnvFileEntry("SECRET_API_KEY", "defaultSecretApiKey", null, true, false, 6, true, false, true);
-        List<EnvFileEntry> expected = new ArrayList<>(List.copyOf(validEnvFileEntries));
+        List<EnvFileEntry> expected = new ArrayList<>(Lists.newArrayList(validEnvFileEntries));
         expected.set(0, updatedNonSecretEnvFile1);
         expected.set(1, updatedNonSecretEnvFile2);
         expected.set(5, updatedSecretEnvFile1);
@@ -142,7 +143,7 @@ public class EnvServiceImplTest {
                 false);
         YamlFileEnvEntry newEnvFromYamlFile = new YamlFileEnvEntry("NEW_NON_SECRET_ENV_FROM_YAML", "NON_SECRET_VALUE", false);
         YamlFileEnvEntry newSecretEnvFromYamlFile = new YamlFileEnvEntry("NEW_SECRET_ENV_FROM_YAML", null, true);
-        List<EnvFileEntry> expected = new ArrayList<>(List.of(newNonSecretEnvFromYaml, newSecretEnvFromYaml));
+        List<EnvFileEntry> expected = new ArrayList<>(Lists.newArrayList(newNonSecretEnvFromYaml, newSecretEnvFromYaml));
         validYamlEnvFileEntries.add(newEnvFromYamlFile);
         validYamlEnvFileEntries.add(newSecretEnvFromYamlFile);
 
@@ -157,9 +158,9 @@ public class EnvServiceImplTest {
     @Test
     void givenListOfEnvFileEntries_createsNewEnvFileWithCorrectEntries() throws IOException {
         EnvService envService = new EnvServiceImpl();
-        EnvFileEntry updatedNonSecretEnvFile1 = new EnvFileEntry("DB_HOST", "defaultLocalHost", y0.envValue(), true, true, 1, false, false, true);
-        EnvFileEntry updatedNonSecretEnvFile2 = new EnvFileEntry("DB_PORT", "defaultPort", y1.envValue(), true, true, 2, false, false, true);
-        List<EnvFileEntry> modifiedEnvFileEntries = new ArrayList<>(List.copyOf(validEnvFileEntries));
+        EnvFileEntry updatedNonSecretEnvFile1 = new EnvFileEntry("DB_HOST", "defaultLocalHost", y0.getEnvValue(), true, true, 1, false, false, true);
+        EnvFileEntry updatedNonSecretEnvFile2 = new EnvFileEntry("DB_PORT", "defaultPort", y1.getEnvValue(), true, true, 2, false, false, true);
+        List<EnvFileEntry> modifiedEnvFileEntries = new ArrayList<>(Lists.newArrayList(validEnvFileEntries));
         modifiedEnvFileEntries.set(0, updatedNonSecretEnvFile1);
         modifiedEnvFileEntries.set(1, updatedNonSecretEnvFile2);
 

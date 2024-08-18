@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.glenneligio.model.PropertiesFileEntry;
 import com.glenneligio.model.YamlFileEnvEntry;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -45,7 +46,7 @@ public class YamlServiceImplTest {
         y2 = new YamlFileEnvEntry("JUST_AN_ENV", "justAnEnvValue", false);
         y3 = new YamlFileEnvEntry("SECRET_API_KEY", null, true);
         y4 = new YamlFileEnvEntry("ENV_SECRET_ONLY_IN_YAML", null, true);
-        validYamlEnvFileEntries = new ArrayList<>(List.of(y0, y1, y2, y3, y4));
+        validYamlEnvFileEntries = new ArrayList<>(Lists.list(y0, y1, y2, y3, y4));
     }
 
     // getYamlFileEnvEntries

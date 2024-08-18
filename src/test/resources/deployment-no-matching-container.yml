@@ -1,0 +1,8 @@
+spec:
+  template:
+    spec:
+      containers:
+        - image: docker/light-proxy
+          env:
+            - name: sample-env-for-light-proxy
+              value: sample-value

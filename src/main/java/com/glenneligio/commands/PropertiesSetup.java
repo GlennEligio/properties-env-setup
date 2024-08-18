@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Objects;
 
 @Command(name = "properties", description = "Setup the application.properties file using k8s yaml")
 @Group(name = "setup")
@@ -71,9 +70,9 @@ public class PropertiesSetup implements Runnable {
             logger.info("Entry - name: {}, value: {}, isSecret: {}", StringUtils.trimToEmpty(entry.envName()), StringUtils.trimToEmpty(entry.envValue()), entry.isSecret());
         }
 
-        List<PropertiesFileEntry> populatedPropEntries = propertiesService.addNewEnvFromYaml(propertiesEntries, yamlEnvEntries);
+        List<PropertiesFileEntry> populatedPropEntries = propertiesService.populateEnvFileEntriesWithValuesFromYaml(propertiesEntries, yamlEnvEntries);
 
-        propertiesService.injectEnvFound(propertiesEntries, propertiesFile);
-        propertiesService.printReport(propertiesEntries);
+        propertiesService.injectEnvFound(populatedPropEntries, propertiesFile);
+        propertiesService.printReport(populatedPropEntries);
     }
 }

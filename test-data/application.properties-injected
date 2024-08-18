@@ -3,7 +3,7 @@ db.port=${DB_PORT:9090}
 secret.api.key=${SECRET_API_KEY:defaultSec=retApiKey}
 property.no.env.used=STATIC_VALUE
 another.env=${JUST_AN_ENV:justAnEnvValue}
-env.notpresent.in.yaml=${ENV_NOT_IN_YAML:null}
+env.notpresent.in.yaml=${ENV_NOT_IN_YAML:}
 
 property.with.no.value=
 invalid.property

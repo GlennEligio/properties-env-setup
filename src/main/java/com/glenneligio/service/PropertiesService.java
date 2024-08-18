@@ -1,6 +1,5 @@
 package com.glenneligio.service;
 
-import com.glenneligio.model.EnvFileEntry;
 import com.glenneligio.model.PropertiesFileEntry;
 import com.glenneligio.model.YamlFileEnvEntry;
 
@@ -12,5 +11,5 @@ public interface PropertiesService {
 
     void injectEnvFound(List<PropertiesFileEntry> propertiesFileEntries, String propertiesFileLocation) throws IOException;
     void printReport(List<PropertiesFileEntry> propertiesFileEntries);
-    List<PropertiesFileEntry> addNewEnvFromYaml(List<PropertiesFileEntry> currentEnvFileEntries, List<YamlFileEnvEntry> yamlFileEnvEntries);
+    List<PropertiesFileEntry> populateEnvFileEntriesWithValuesFromYaml(List<PropertiesFileEntry> currentEnvFileEntries, List<YamlFileEnvEntry> yamlFileEnvEntries);
 }

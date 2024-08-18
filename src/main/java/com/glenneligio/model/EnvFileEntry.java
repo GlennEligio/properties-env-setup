@@ -1,5 +1,8 @@
 package com.glenneligio.model;
 
+import lombok.Data;
+
+@Data
 public class EnvFileEntry {
 
     private String name;

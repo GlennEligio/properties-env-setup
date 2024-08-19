@@ -142,31 +142,31 @@ public class PropertiesServiceImpl implements PropertiesService{
 
     @Override
     public void printReport(List<PropertiesFileEntry> propertiesFileEntries) {
-        logger.info("Invalid entries or empty lines");
+        logger.info("********** Invalid entries or empty lines *****************************************");
         propertiesFileEntries.stream()
                 .filter(entry -> !entry.isValid())
                 .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
 
-        logger.info("Valid entries with no environment variable injected");
+        logger.info("********** Valid entries with no environment variable injected *********************");
         propertiesFileEntries.stream()
                 .filter(PropertiesFileEntry::isValid)
                 .filter(entry -> !entry.isValueInjected())
                 .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
 
-        logger.info("Valid entries whose environment variable is not present in yaml");
+        logger.info("********** Valid entries whose environment variable is not present in yaml ********");
         propertiesFileEntries.stream()
                 .filter(PropertiesFileEntry::isValid)
                 .filter(PropertiesFileEntry::isValueInjected)
                 .filter(entry -> !entry.isPresentInYaml())
                 .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
 
-        logger.info("Valid entries that was injected with environment variables");
+        logger.info("********** Valid entries that was injected with environment variables **************");
         propertiesFileEntries.stream()
                 .filter(PropertiesFileEntry::isValid)
                 .filter(PropertiesFileEntry::isInjected)
                 .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
 
-        logger.info("Valid entries whose environment variable was a secret");
+        logger.info("********** Valid entries whose environment variable was a secret *******************");
         propertiesFileEntries.stream()
                 .filter(PropertiesFileEntry::isValid)
                 .filter(PropertiesFileEntry::isEnvValueSecret)

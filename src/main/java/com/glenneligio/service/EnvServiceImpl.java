@@ -126,39 +126,39 @@ public class EnvServiceImpl implements EnvService {
             return;
         }
 
-        logger.info("Invalid entries or empty lines");
+        logger.info("***************** Invalid entries or empty lines ************************************");
         envFileEntries.stream()
                 .filter(entry -> !entry.isValid())
                 .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
 
-        logger.info("Valid entries with no counterpart in .yml file");
+        logger.info("***************** Valid entries with no counterpart in .yml file ********************");
         envFileEntries.stream()
                 .filter(EnvFileEntry::isValid)
                 .filter(entry -> !entry.isFromYamlEnv())
                 .filter(entry -> !entry.isPresentInYaml())
                 .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
 
-        logger.info("Valid entries that was injected with environment variables");
+        logger.info("***************** Valid entries that was injected with environment variables ********");
         envFileEntries.stream()
                 .filter(EnvFileEntry::isValid)
                 .filter(EnvFileEntry::isInjected)
                 .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
 
-        logger.info("Valid entries whose environment variable was a secret");
+        logger.info("***************** Valid entries whose environment variable was a secret *************");
         envFileEntries.stream()
                 .filter(EnvFileEntry::isValid)
                 .filter(EnvFileEntry::isEnvValueSecret)
                 .filter(entry -> !entry.isFromYamlEnv())
                 .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
 
-        logger.info("Entries in .yaml file that was not present in .env file");
+        logger.info("***************** Entries in .yaml file that was not present in .env file ************");
         envFileEntries.stream()
                 .filter(EnvFileEntry::isValid)
                 .filter(EnvFileEntry::isFromYamlEnv)
                 .filter(entry -> !entry.isEnvValueSecret())
                 .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
 
-        logger.info("Secret entries in .yaml file that was not present in .env file");
+        logger.info("***************** Secret entries in .yaml file that was not present in .env file *****");
         envFileEntries.stream()
                 .filter(EnvFileEntry::isValid)
                 .filter(EnvFileEntry::isFromYamlEnv)

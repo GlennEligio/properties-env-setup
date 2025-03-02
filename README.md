@@ -33,3 +33,10 @@ Command used to setup the application.properties file using k8s yaml file by inj
 
 ## Example usage
 1. java -jar .\properties-env-setup-1.0-SNAPSHOT.jar setup properties -p .\test-data\application.properties -y .\test-data\sample-deployment.yml -i client-service
+
+
+## Versions
+### 1.1
+- Updated the regex for validating app.prop value
+- Fix issue where app.prop with empty string as default value and those whose ENV injected are in lowercase is considered invalid
+  

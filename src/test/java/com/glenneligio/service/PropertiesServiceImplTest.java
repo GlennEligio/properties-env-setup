@@ -26,9 +26,9 @@ public class PropertiesServiceImplTest {
     private static final String VALID_ENV_WITH_NO_CONTENT_FILE_NAME = "src/test/resources/application-no-content.properties";
     private static final String NON_EXISTENT_FILE = "src/test/resources/application-non-existent.properties";
     private static final String EXPECTED_ENV_FILE = "src/test/resources/application-expected.properties";
-    private PropertiesFileEntry p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11;
+    private PropertiesFileEntry p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13;
     private List<PropertiesFileEntry> validPropertyFileEntries = new ArrayList<>();
-    private YamlFileEnvEntry y0, y1, y2;
+    private YamlFileEnvEntry y0, y1, y2, y3, y4, y5;
     private List<YamlFileEnvEntry> validYamlEnvFileEntries = new ArrayList<>();
 
     @BeforeEach
@@ -94,47 +94,63 @@ public class PropertiesServiceImplTest {
                 true,
                 7,
                 false);
-        // valid env injected with no default value but with inline comment
-        p7 = new PropertiesFileEntry("property.entry.with.comment",
-                "COMMENT_VALUE",
-                null,
+        // valid env injected with no default value
+        p7 = new PropertiesFileEntry("prop.with.injected.env.but.no.default.value",
+                "ENV_NO_DEFAULT_VALUE",
+                "",
                 true,
                 true,
                 8,
                 false);
-        // property with invalid syntax for property value
-        p8 = new PropertiesFileEntry("invalid.prop.entry.value.syntax=${qweqweqweqwe}}",
+        // valid env injected with no default value
+        p8 = new PropertiesFileEntry("prop.with.injected.env.as.lowercases",
+                "lower_case_env",
                 null,
-                null,
-                false,
-                false,
+                true,
+                true,
                 9,
                 false);
-        // blank line
-        p9 = new PropertiesFileEntry(null,
+        // valid env injected with no default value but with inline comment
+        p9 = new PropertiesFileEntry("property.entry.with.comment",
+                "COMMENT_VALUE",
                 null,
-                null,
-                false,
-                false,
+                true,
+                true,
                 10,
                 false);
-        // valid entry but with no default value and not injected
-        p10 = new PropertiesFileEntry("property.with.no.value",
+        // property with invalid syntax for property value
+        p10 = new PropertiesFileEntry("invalid.prop.entry.value.syntax=${qweqweqweqwe}}",
                 null,
-                "",
-                true,
+                null,
+                false,
                 false,
                 11,
                 false);
-        // invalid entry
-        p11 = new PropertiesFileEntry("invalid.property",
+        // blank line
+        p11 = new PropertiesFileEntry(null,
                 null,
                 null,
                 false,
                 false,
                 12,
                 false);
-        validPropertyFileEntries.addAll(Lists.list(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11));
+        // valid entry but with no default value and not injected
+        p12 = new PropertiesFileEntry("property.with.no.value",
+                null,
+                "",
+                true,
+                false,
+                13,
+                false);
+        // invalid entry
+        p13 = new PropertiesFileEntry("invalid.property",
+                null,
+                null,
+                false,
+                false,
+                14,
+                false);
+        validPropertyFileEntries.addAll(Lists.list(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13));
     }
 
     private void populateValidYamlEnvFileEntries() {
@@ -142,9 +158,15 @@ public class PropertiesServiceImplTest {
         y0 = new YamlFileEnvEntry("DB_HOST", "10.950.54.10", false);
         // nonSecretYamlEnvEntry2
         y1 = new YamlFileEnvEntry("DB_PORT", "1443", false);
+        // nonSecretYamlEnvEntry3
+        y2 = new YamlFileEnvEntry("JUST_AN_ENV", "justAnEnvValue", false);
+        // nonSecretYamlEnvEntry4
+        y3 = new YamlFileEnvEntry("ENV_NO_DEFAULT_VALUE", "envNoDefaultValue", false);
+        // nonSecretYamlEnvEntry4
+        y4 = new YamlFileEnvEntry("lower_case_env", "lowerCaseEnv", false);
         // secretYamlEnvEntry1
-        y2 = new YamlFileEnvEntry("SECRET_API_KEY", null, true);
-        validYamlEnvFileEntries = new ArrayList<>(Lists.list(y0, y1, y2));
+        y5 = new YamlFileEnvEntry("SECRET_API_KEY", null, true);
+        validYamlEnvFileEntries = new ArrayList<>(Lists.list(y0, y1, y2, y3, y4, y5));
     }
 
     // getPropertiesFileEntriesFromPropertiesFile
@@ -157,24 +179,47 @@ public class PropertiesServiceImplTest {
         Assertions.assertEquals(validPropertyFileEntries, result);
     }
 
-    // populateEnvFileEntriesWithValuesFromYaml
+    // populateEnvFileEntriesWithValuesFromYaml()
     // the PropertyFileEntry list content should be updated properly based on YamlFileEnvEntry list
     @Test
     void givenValidListOfPropertyFileEntryAndYamlFileEnvEntry_withMatchingEnvFromYaml_returnsUpdatedPropertyFileEntries() {
         PropertiesService propertiesService = new PropertiesServiceImpl();
         List<PropertiesFileEntry> updatedPropertyFileEntries = new ArrayList<>(validPropertyFileEntries);
+
+        // edit PropertiesFileEntry to have values from YamlEntryFile
+        // with value from yaml that is not secret
         PropertiesFileEntry updatedP0 = updatedPropertyFileEntries.get(0);
         updatedP0.setEnvValueToInject(y0.getEnvValue());
         updatedP0.setEnvValueSecret(false);
         updatedP0.setPresentInYaml(true);
         updatedPropertyFileEntries.set(0, updatedP0);
+
         PropertiesFileEntry updatedP2 = updatedPropertyFileEntries.get(2);
         updatedP2.setEnvValueToInject(y1.getEnvValue());
         updatedP2.setEnvValueSecret(false);
         updatedP2.setPresentInYaml(true);
         updatedPropertyFileEntries.set(2, updatedP2);
+
+        PropertiesFileEntry updatedP5 = updatedPropertyFileEntries.get(5);
+        updatedP5.setEnvValueToInject(y2.getEnvValue());
+        updatedP5.setEnvValueSecret(false);
+        updatedP5.setPresentInYaml(true);
+        updatedPropertyFileEntries.set(5, updatedP5);
+
+        PropertiesFileEntry updatedP7 = updatedPropertyFileEntries.get(7);
+        updatedP7.setEnvValueToInject(y3.getEnvValue());
+        updatedP7.setEnvValueSecret(false);
+        updatedP7.setPresentInYaml(true);
+        updatedPropertyFileEntries.set(7, updatedP7);
+
+        PropertiesFileEntry updatedP8 = updatedPropertyFileEntries.get(8);
+        updatedP8.setEnvValueToInject(y4.getEnvValue());
+        updatedP8.setEnvValueSecret(false);
+        updatedP8.setPresentInYaml(true);
+        updatedPropertyFileEntries.set(8, updatedP8);
+
+        // env was a secret in yaml
         PropertiesFileEntry updatedP3 = updatedPropertyFileEntries.get(3);
-        updatedP3.setEnvValueToInject(y2.getEnvValue());
         updatedP3.setEnvValueSecret(true);
         updatedP3.setPresentInYaml(true);
         updatedPropertyFileEntries.set(3, updatedP3);
@@ -185,7 +230,7 @@ public class PropertiesServiceImplTest {
     }
 
 
-    // injectEnvFound
+    // injectEnvFound()
     // only inject entries that are valid, is injected, and not secret
     @Test
     void givenListOfPropertyFileEntryButNonExistingPropertyFile_throwRuntimeException() throws IOException {
@@ -209,18 +254,59 @@ public class PropertiesServiceImplTest {
     void givenListOfPropertyFileEntryAndValidPropertyFile_createsNewPropertyFileEntryWithCorrectContent() throws IOException {
         PropertiesService propertiesService = new PropertiesServiceImpl();
         List<PropertiesFileEntry> updatedPropertyFileEntries = new ArrayList<>(validPropertyFileEntries);
+
+        // edit PropertiesFileEntry to have values from YamlEntryFile
+        // with value from yaml that is not secret
         PropertiesFileEntry updatedP0 = updatedPropertyFileEntries.get(0);
+        updatedP0.setValid(true);
+        updatedP0.setValueInjected(true);
+        updatedP0.setInjected(true);
         updatedP0.setEnvValueToInject(y0.getEnvValue());
         updatedP0.setEnvValueSecret(false);
         updatedP0.setPresentInYaml(true);
-        updatedP0.setInjected(true);
         updatedPropertyFileEntries.set(0, updatedP0);
+
         PropertiesFileEntry updatedP2 = updatedPropertyFileEntries.get(2);
+        updatedP2.setValueInjected(true);
+        updatedP2.setValid(true);
+        updatedP2.setInjected(true);
         updatedP2.setEnvValueToInject(y1.getEnvValue());
         updatedP2.setEnvValueSecret(false);
         updatedP2.setPresentInYaml(true);
-        updatedP2.setInjected(true);
         updatedPropertyFileEntries.set(2, updatedP2);
+
+        PropertiesFileEntry updatedP5 = updatedPropertyFileEntries.get(5);
+        updatedP5.setValueInjected(true);
+        updatedP5.setValid(true);
+        updatedP5.setInjected(true);
+        updatedP5.setEnvValueToInject(y2.getEnvValue());
+        updatedP5.setEnvValueSecret(false);
+        updatedP5.setPresentInYaml(true);
+        updatedPropertyFileEntries.set(5, updatedP5);
+
+        PropertiesFileEntry updatedP7 = updatedPropertyFileEntries.get(7);
+        updatedP7.setValueInjected(true);
+        updatedP7.setValid(true);
+        updatedP7.setInjected(true);
+        updatedP7.setEnvValueToInject(y3.getEnvValue());
+        updatedP7.setEnvValueSecret(false);
+        updatedP7.setPresentInYaml(true);
+        updatedPropertyFileEntries.set(7, updatedP7);
+
+        PropertiesFileEntry updatedP8 = updatedPropertyFileEntries.get(8);
+        updatedP8.setValueInjected(true);
+        updatedP8.setValid(true);
+        updatedP8.setInjected(true);
+        updatedP8.setEnvValueToInject(y4.getEnvValue());
+        updatedP8.setEnvValueSecret(false);
+        updatedP8.setPresentInYaml(true);
+        updatedPropertyFileEntries.set(8, updatedP8);
+
+        // env was a secret in yaml
+        PropertiesFileEntry updatedP3 = updatedPropertyFileEntries.get(3);
+        updatedP3.setEnvValueSecret(true);
+        updatedP3.setPresentInYaml(true);
+        updatedPropertyFileEntries.set(3, updatedP3);
 
         propertiesService.injectEnvFound(updatedPropertyFileEntries, VALID_ENV_FILE_NAME);
 

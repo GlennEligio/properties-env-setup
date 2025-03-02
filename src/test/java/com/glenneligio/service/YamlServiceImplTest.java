@@ -32,7 +32,7 @@ public class YamlServiceImplTest {
     private static final String NON_CONTAINER_FIELD = "src/test/resources/deployment-no-container.yml";
     private static final String NON_MATCHING_CONTAINER_ITEM = "src/test/resources/deployment-no-matching-container.yml";
     private static final String CONTAINER_IMAGE = "client-service";
-    private YamlFileEnvEntry y0, y1, y2, y3, y4;
+    private YamlFileEnvEntry y0, y1, y2, y3, y4, y5, y6;
     private List<YamlFileEnvEntry> validYamlEnvFileEntries = new ArrayList<>();
 
     @BeforeEach
@@ -44,9 +44,11 @@ public class YamlServiceImplTest {
         y0 = new YamlFileEnvEntry("DB_HOST", "localhost", false);
         y1 = new YamlFileEnvEntry("DB_PORT", "9090", false);
         y2 = new YamlFileEnvEntry("JUST_AN_ENV", "justAnEnvValue", false);
-        y3 = new YamlFileEnvEntry("SECRET_API_KEY", null, true);
-        y4 = new YamlFileEnvEntry("ENV_SECRET_ONLY_IN_YAML", null, true);
-        validYamlEnvFileEntries = new ArrayList<>(Lists.list(y0, y1, y2, y3, y4));
+        y3 = new YamlFileEnvEntry("ENV_NO_DEFAULT_VALUE", "envNoDefaultValue", false);
+        y4 = new YamlFileEnvEntry("lower_case_env", "lowerCaseEnv", false);
+        y5 = new YamlFileEnvEntry("SECRET_API_KEY", null, true);
+        y6 = new YamlFileEnvEntry("ENV_SECRET_ONLY_IN_YAML", null, true);
+        validYamlEnvFileEntries = new ArrayList<>(Lists.list(y0, y1, y2, y3, y4, y5, y6));
     }
 
     // getYamlFileEnvEntries

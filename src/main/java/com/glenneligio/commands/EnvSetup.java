@@ -38,6 +38,12 @@ public class EnvSetup implements Runnable {
     @Required
     protected String containerImageName;
 
+    public EnvSetup(String envFile, String yamlFile, String containerImageName) {
+        this.envFile = envFile;
+        this.yamlFile = yamlFile;
+        this.containerImageName = containerImageName;
+    }
+
     @SneakyThrows
     @Override
     public void run() {
@@ -47,6 +53,7 @@ public class EnvSetup implements Runnable {
         // Reading the properties file
         EnvService envService = new EnvServiceImpl();
         List<EnvFileEntry> envFileEntries = envService.readOrCreateEnvFile(envFile);
+
         logger.info("Env file entries");
         for(EnvFileEntry entry : envFileEntries) {
             logger.info("Entry - name: {}, defaultValue: {}, isValid: {}",
@@ -64,7 +71,7 @@ public class EnvSetup implements Runnable {
 
         envService.populateEnvFileEntriesWithValuesFromYaml(envFileEntries, yamlEnvEntries);
 
-        // add new EnvFileEntry for env in yaml that is not present in .env file
+        // create list of EnvFileEntry objects on ENV present in yaml but not in .env file
         List<EnvFileEntry> missingEnvFromYaml = envService.addNewEnvFromYaml(envFileEntries, yamlEnvEntries);
 
         // add new env from .yml file that was not present in .env file

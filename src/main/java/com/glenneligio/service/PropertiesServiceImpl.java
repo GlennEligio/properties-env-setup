@@ -32,12 +32,16 @@ public class PropertiesServiceImpl implements PropertiesService{
 
             for (String entry : entries) {
                 String entryValue = entry;
+
+                // removing the comment portion of the line
                 int commentCharIndex = entryValue.indexOf("#");
                 if(commentCharIndex != -1) {
                     logger.info("Cleaning the line by removing comment in line {}", entryValue);
                     entryValue = entryValue.substring(0, commentCharIndex).trim();
                 }
 
+                // check if app.prop entry is a new line
+                // if so, create PropertiesFileEntry with null values and continue
                 if(entryValue.trim().length() == 0) {
                     logger.debug("Newline, skipped");
                     PropertiesFileEntry newLineEntry = new PropertiesFileEntry(null, null, null, false, false, lineNumberIndex,false);
@@ -46,6 +50,8 @@ public class PropertiesServiceImpl implements PropertiesService{
                     continue;
                 }
 
+                // removing invalid entries (those without equals)
+                // if invalid, create PropertiesFileEntry with the current line as name and continue
                 int equalsIndex = entryValue.indexOf("=");
                 if (equalsIndex == -1) {
                     logger.debug("Invalid property entry: {}", entryValue);
@@ -55,11 +61,15 @@ public class PropertiesServiceImpl implements PropertiesService{
                     continue;
                 }
 
+                // encodes the prop name and value from the current entryValue using the equals index
                 String propName = entryValue.substring(0, equalsIndex).trim();
                 String propValue = entryValue.substring(equalsIndex + 1).trim();
                 logger.debug("propName: {}", propName);
                 logger.debug("propValue: {}", propValue);
 
+                // checks if prop value DOES NOT starts with ${
+                // if it does not, it is not injectable,
+                // create a PropertiesFileEntry with prop name and prop value specified as default value
                 if (!propValue.startsWith("${")) {
                     logger.debug("Property entry is not being injected with environment variable, skipped");
                     PropertiesFileEntry skippedEntry = new PropertiesFileEntry(propName, null, propValue, true, false, lineNumberIndex, false);
@@ -68,7 +78,9 @@ public class PropertiesServiceImpl implements PropertiesService{
                     continue;
                 }
 
-                if(!propValue.matches("^\\s*\\$\\{[A-Z0-9_]+(:[^}]+)?\\}\\s*$")) {
+                // checks if the prop value DOES NOT matches the regex for valid injectable prop value
+                // if it doesnt, create PropertiesFileEntry with name as the
+                if(!propValue.matches("^\\s*\\$\\{[a-zA-Z0-9_]+(:[^}]+|:)?\\}\\s*$")) {
                     logger.info("Invalid syntax for property entry value: {}", entryValue);
                     PropertiesFileEntry invalidEntry = new PropertiesFileEntry(StringUtils.trimToEmpty(entryValue), null, null, false, false, lineNumberIndex, false);
                     logger.info("Property entry: {}", invalidEntry);
@@ -126,6 +138,7 @@ public class PropertiesServiceImpl implements PropertiesService{
                         ":" +
                         StringUtils.trimToEmpty(propEntry.getEnvValueToInject()) +
                         "}";
+                logger.info("Writing on file: {}", fileEntry);
                 fileContents.set(i-1, fileEntry);
                 propEntry.setInjected(true);
             }
@@ -133,6 +146,7 @@ public class PropertiesServiceImpl implements PropertiesService{
 
         File newFileToCreate = new File(propertiesFileLocation + "-injected");
         if(newFileToCreate.exists()) {
+            logger.info("File already exist, deleting and creating new one");
             newFileToCreate.delete();
             newFileToCreate.createNewFile();
         }

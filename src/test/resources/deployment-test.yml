@@ -14,6 +14,10 @@ spec:
               value: "9090"
             - name: JUST_AN_ENV
               value: "justAnEnvValue"
+            - name: ENV_NO_DEFAULT_VALUE
+              value: envNoDefaultValue
+            - name: lower_case_env
+              value: lowerCaseEnv
             - name: SECRET_API_KEY
               valueFrom:
                 secretKeyRef:

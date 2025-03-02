@@ -15,6 +15,14 @@ public class EnvFileEntry {
     private boolean isFromYamlEnv;
     private boolean isPresentInYaml;
 
+    public EnvFileEntry(String name, String defaultValue, String envValueToInject, boolean isValid, int lineNumber) {
+        this.name = name;
+        this.defaultValue = defaultValue;
+        this.envValueToInject = envValueToInject;
+        this.isValid = isValid;
+        this.lineNumber = lineNumber;
+    }
+
     public EnvFileEntry(String name, String defaultValue, String envValueToInject, boolean isValid, boolean isInjected, int lineNumber, boolean isEnvValueSecret, boolean isFromYamlEnv, boolean isPresentInYaml) {
         this.name = name;
         this.defaultValue = defaultValue;

@@ -43,6 +43,12 @@ public class PropertiesSetup implements Runnable {
     @Required
     protected String containerImageName;
 
+    public PropertiesSetup(String propertiesFile, String yamlFile, String containerImageName) {
+        this.propertiesFile = propertiesFile;
+        this.yamlFile = yamlFile;
+        this.containerImageName = containerImageName;
+    }
+
     @SneakyThrows
     @Override
     public void run() {

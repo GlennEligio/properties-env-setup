@@ -44,6 +44,10 @@ public class EnvSetup implements Runnable {
         this.containerImageName = containerImageName;
     }
 
+    public EnvSetup() {
+
+    }
+
     @SneakyThrows
     @Override
     public void run() {

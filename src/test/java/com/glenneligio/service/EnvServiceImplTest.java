@@ -131,7 +131,7 @@ public class EnvServiceImplTest {
                 8,
                 false,
                 true,
-                false);
+                true);
         EnvFileEntry newSecretEnvFromYaml = new EnvFileEntry("NEW_SECRET_ENV_FROM_YAML",
                 null,
                 null,
@@ -140,7 +140,7 @@ public class EnvServiceImplTest {
                 9,
                 true,
                 true,
-                false);
+                true);
         YamlFileEnvEntry newEnvFromYamlFile = new YamlFileEnvEntry("NEW_NON_SECRET_ENV_FROM_YAML", "NON_SECRET_VALUE", false);
         YamlFileEnvEntry newSecretEnvFromYamlFile = new YamlFileEnvEntry("NEW_SECRET_ENV_FROM_YAML", null, true);
         List<EnvFileEntry> expected = new ArrayList<>(Lists.newArrayList(newNonSecretEnvFromYaml, newSecretEnvFromYaml));

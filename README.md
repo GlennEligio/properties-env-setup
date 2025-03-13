@@ -36,6 +36,13 @@ Command used to setup the application.properties file using k8s yaml file by inj
 
 
 ## Versions
+
+
+### PES-006 - 1.2 - 3/13/25
+- Fixed issue where the jar file does not start due to java.lang.reflect.InvocationTargetException
+  - Added no arg constructor to PropertiesSetup and EnvSetup
+- Fixed issue where env only present in .yaml file is added in .env file as nulls
+
 ### 1.1
 - Updated the regex for validating app.prop value
 - Fix issue where app.prop with empty string as default value and those whose ENV injected are in lowercase is considered invalid

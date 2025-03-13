@@ -119,9 +119,13 @@ public class EnvServiceImpl implements EnvService {
                     String envName = "";
                     String envValue = "";
 
+                    boolean isValidAndInjected = envFileEntry.isValid() && envFileEntry.isInjected() && !envFileEntry.isEnvValueSecret();
+                    boolean isValidAndOnlyFromYaml = envFileEntry.isValid() && !envFileEntry.isInjected() && envFileEntry.isFromYamlEnv()
+                            && envFileEntry.isPresentInYaml();
+
                     // if valid, injected with value from yaml, and env from yaml is not a secret
                     // replace envName and envValue variable with the name and value from yaml
-                    if(envFileEntry.isValid() && envFileEntry.isInjected() && !envFileEntry.isEnvValueSecret()) {
+                    if(isValidAndInjected || isValidAndOnlyFromYaml) {
                         envName = envFileEntry.getName();
                         envValue = StringUtils.trimToEmpty(envFileEntry.getEnvValueToInject());
                         fileEntry = envName + "=" + envValue;
@@ -218,7 +222,7 @@ public class EnvServiceImpl implements EnvService {
                         lineNumbersForNewEnv.getAndIncrement(),
                         yamlFileEnvEntry.isSecret(),
                         true,
-                        false
+                        true
                 ))
                 // return it
                 .collect(Collectors.toList());

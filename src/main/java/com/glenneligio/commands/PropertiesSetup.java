@@ -49,6 +49,10 @@ public class PropertiesSetup implements Runnable {
         this.containerImageName = containerImageName;
     }
 
+    public PropertiesSetup() {
+
+    }
+
     @SneakyThrows
     @Override
     public void run() {

@@ -23,7 +23,7 @@ public class YamlServiceImpl implements YamlService {
     private static final Logger logger = LoggerFactory.getLogger(YamlServiceImpl.class);
 
     @Override
-    public List<YamlFileEnvEntry> getYamlFileEnvEntries(String yamlFileLocation, String containerImageName) throws FileNotFoundException, JsonProcessingException, AccessDeniedException {
+    public List<YamlFileEnvEntry> getYamlFileEnvEntries(String yamlFileLocation, String containerName) throws FileNotFoundException, JsonProcessingException, AccessDeniedException {
         System.out.println(String.format("Checking the yaml file: %s", yamlFileLocation));
         File file = new File(yamlFileLocation);
         if(!file.exists()) {
@@ -59,16 +59,20 @@ public class YamlServiceImpl implements YamlService {
         JsonNode envArrayNode = null;
         boolean containerImagePresent = false;
 
+
         for(JsonNode elementNode : containerArrayNode) {
-            String imageName = elementNode.get("image").asText();
-            if(imageName.equals(containerImageName)) {
-                containerImagePresent = true;
-                envArrayNode = elementNode.get("env");
+            JsonNode containerNameField = elementNode.get("name");
+            if(Objects.nonNull(containerNameField)) {
+                String containerNameInYaml = containerNameField.asText();
+                if(containerNameInYaml.equals(containerName)) {
+                    containerImagePresent = true;
+                    envArrayNode = elementNode.get("env");
+                }
             }
         }
 
         if(!containerImagePresent) {
-            throw new RuntimeException("Container with image name " + containerImageName + " does not exist.");
+            throw new RuntimeException("Container with name " + containerName + " does not exist.");
         }
 
         if(Objects.nonNull(envArrayNode) && envArrayNode.isArray()) {

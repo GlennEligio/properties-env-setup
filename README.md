@@ -15,21 +15,21 @@ Java application to populate application.properties and .env files using k8s yml
 
 Command used to setup the application.properties file using k8s yaml file by injecting env from yaml to .properties file. A new file will be created with suffix "-injected" in same directory as '-e' input
 
-| Options        | Type     | Description                                                                                                         | Examples       |
-|:---------------|:---------|:--------------------------------------------------------------------------------------------------------------------|:---------------|
-| `-e`, `--env`  | `string` | **Required**. Full path of .env file to use. If not present, a .env file of same directory location will be created | .env           |
-| `-y`, `--yaml` | `string` | **Required**. Full path of .yml file used as source of env values                                                   | deployment.yml |
-| `-i`, `-image` | `string` | **Required**. Image name of the container where env file will be fetched from                                       | client-service |
+| Options             | Type     | Description                                                                                                         | Examples       |
+|:--------------------|:---------|:--------------------------------------------------------------------------------------------------------------------|:---------------|
+| `-e`, `--env`       | `string` | **Required**. Full path of .env file to use. If not present, a .env file of same directory location will be created | .env           |
+| `-y`, `--yaml`      | `string` | **Required**. Full path of .yml file used as source of env values                                                   | deployment.yml |
+| `-c`, `--container` | `string` | **Required**. Container name where env file will be fetched from                                                    | client-service |
 
 ### 2. setup env [...options]
 
 Command used to setup the application.properties file using k8s yaml file by injecting env from yaml to .properties file. A new file will be created with suffix "-injected" in same directory as '-p' input
 
-| Options              | Type     | Description                                                                   | Examples               |
-|:---------------------|:---------|:------------------------------------------------------------------------------|:-----------------------|
-| `-p`, `--properties` | `string` | **Required**. Full path of .properties file to use.                           | application.properties |
-| `-y`, `--yaml`       | `string` | **Required**. Full path of .yml file used as source of env values             | deployment.yml         |
-| `-i`, `-image`       | `string` | **Required**. Image name of the container where env file will be fetched from | client-service         |
+| Options              | Type     | Description                                                       | Examples               |
+|:---------------------|:---------|:------------------------------------------------------------------|:-----------------------|
+| `-p`, `--properties` | `string` | **Required**. Full path of .properties file to use.               | application.properties |
+| `-y`, `--yaml`       | `string` | **Required**. Full path of .yml file used as source of env values | deployment.yml         |
+| `-c`, `--container`  | `string` | **Required**. Container name where env file will be fetched from  | client-service         |
 
 ## Example usage
 1. java -jar .\properties-env-setup-1.0-SNAPSHOT.jar setup properties -p .\test-data\application.properties -y .\test-data\sample-deployment.yml -i client-service
@@ -37,6 +37,11 @@ Command used to setup the application.properties file using k8s yaml file by inj
 
 
 ## Versions
+
+### PES-008 - 1.4 - 6/22/25
+- Changed the logging
+    - Updated the way 
+
 
 ### PES-007 - 1.3 - 6/22/25
 - Changed the logging

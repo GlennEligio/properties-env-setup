@@ -38,15 +38,15 @@ public class PropertiesSetup implements Runnable {
     @Required
     protected String yamlFile;
 
-    @Option(name = {"-i" , "--image"},
-            description = "Image name of the container used")
+    @Option(name = {"-c" , "--container"},
+            description = "Container name where env files are fetched")
     @Required
-    protected String containerImageName;
+    protected String containerName;
 
     public PropertiesSetup(String propertiesFile, String yamlFile, String containerImageName) {
         this.propertiesFile = propertiesFile;
         this.yamlFile = yamlFile;
-        this.containerImageName = containerImageName;
+        this.containerName = containerImageName;
     }
 
     public PropertiesSetup() {
@@ -58,7 +58,7 @@ public class PropertiesSetup implements Runnable {
     public void run() {
         System.out.println(String.format("Properties file to be populated: %s", propertiesFile));
         System.out.println(String.format("K8s yaml file to be used: %s", yamlFile));
-        System.out.println(String.format("Image name of the container where env file is fetched: %s", containerImageName));
+        System.out.println(String.format("Container name where env file is fetched: %s", containerName));
 
         // Reading the properties file
         PropertiesService propertiesService = new PropertiesServiceImpl();
@@ -74,7 +74,7 @@ public class PropertiesSetup implements Runnable {
         }
 
         YamlService yamlService = new YamlServiceImpl();
-        List<YamlFileEnvEntry> yamlEnvEntries = yamlService.getYamlFileEnvEntries(yamlFile, containerImageName);
+        List<YamlFileEnvEntry> yamlEnvEntries = yamlService.getYamlFileEnvEntries(yamlFile, containerName);
         logger.debug("YAML env entries");
         for(YamlFileEnvEntry entry : yamlEnvEntries) {
             logger.debug("Entry - name: {}, value: {}, isSecret: {}", StringUtils.trimToEmpty(entry.getEnvName()), StringUtils.trimToEmpty(entry.getEnvValue()), entry.isSecret());

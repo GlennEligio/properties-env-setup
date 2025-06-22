@@ -8,5 +8,5 @@ import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 public interface YamlService {
-    List<YamlFileEnvEntry> getYamlFileEnvEntries(String yamlFileLocation, String containerImageName) throws FileNotFoundException, JsonProcessingException, AccessDeniedException;
+    List<YamlFileEnvEntry> getYamlFileEnvEntries(String yamlFileLocation, String containerName) throws FileNotFoundException, JsonProcessingException, AccessDeniedException;
 }

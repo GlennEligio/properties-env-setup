@@ -50,22 +50,22 @@ public class PropertiesSetup implements Runnable {
     }
 
     public PropertiesSetup() {
-
+        // Default constructor for dependency injection
     }
 
     @SneakyThrows
     @Override
     public void run() {
-        logger.info("Properties file to be populated: {}", propertiesFile);
-        logger.info("K8s yaml file to be used: {}", yamlFile);
-        logger.info("Image name of the container where env file is fetched: {}", containerImageName);
+        System.out.println(String.format("Properties file to be populated: %s", propertiesFile));
+        System.out.println(String.format("K8s yaml file to be used: %s", yamlFile));
+        System.out.println(String.format("Image name of the container where env file is fetched: %s", containerImageName));
 
         // Reading the properties file
         PropertiesService propertiesService = new PropertiesServiceImpl();
         List<PropertiesFileEntry> propertiesEntries = propertiesService.getPropertiesFileEntriesFromPropertiesFile(propertiesFile);
-        logger.info("Properties file entries");
+        logger.debug("Properties file entries");
         for(PropertiesFileEntry entry : propertiesEntries) {
-            logger.info("Entry - name: {}, defaultValue: {}, envInjected: {}, isValid: {}, isInjected: {}",
+            logger.debug("Entry - name: {}, defaultValue: {}, envInjected: {}, isValid: {}, isInjected: {}",
                     StringUtils.trimToEmpty(entry.getName()),
                     StringUtils.trimToEmpty(entry.getDefaultValue()),
                     StringUtils.trimToEmpty(entry.getEnvUsed()),
@@ -75,9 +75,9 @@ public class PropertiesSetup implements Runnable {
 
         YamlService yamlService = new YamlServiceImpl();
         List<YamlFileEnvEntry> yamlEnvEntries = yamlService.getYamlFileEnvEntries(yamlFile, containerImageName);
-        logger.info("YAML env entries");
+        logger.debug("YAML env entries");
         for(YamlFileEnvEntry entry : yamlEnvEntries) {
-            logger.info("Entry - name: {}, value: {}, isSecret: {}", StringUtils.trimToEmpty(entry.getEnvName()), StringUtils.trimToEmpty(entry.getEnvValue()), entry.isSecret());
+            logger.debug("Entry - name: {}, value: {}, isSecret: {}", StringUtils.trimToEmpty(entry.getEnvName()), StringUtils.trimToEmpty(entry.getEnvValue()), entry.isSecret());
         }
 
         List<PropertiesFileEntry> populatedPropEntries = propertiesService.populateEnvFileEntriesWithValuesFromYaml(propertiesEntries, yamlEnvEntries);

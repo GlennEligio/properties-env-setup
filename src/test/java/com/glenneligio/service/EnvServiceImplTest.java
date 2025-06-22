@@ -158,13 +158,14 @@ public class EnvServiceImplTest {
     @Test
     void givenListOfEnvFileEntries_createsNewEnvFileWithCorrectEntries() throws IOException {
         EnvService envService = new EnvServiceImpl();
+        envService.setEnvFile(new File(VALID_ENV_FILE_NAME));
         EnvFileEntry updatedNonSecretEnvFile1 = new EnvFileEntry("DB_HOST", "defaultLocalHost", y0.getEnvValue(), true, true, 1, false, false, true);
         EnvFileEntry updatedNonSecretEnvFile2 = new EnvFileEntry("DB_PORT", "defaultPort", y1.getEnvValue(), true, true, 2, false, false, true);
         List<EnvFileEntry> modifiedEnvFileEntries = new ArrayList<>(Lists.newArrayList(validEnvFileEntries));
         modifiedEnvFileEntries.set(0, updatedNonSecretEnvFile1);
         modifiedEnvFileEntries.set(1, updatedNonSecretEnvFile2);
 
-        envService.injectEnvFound(modifiedEnvFileEntries, VALID_ENV_FILE_NAME);
+        envService.injectEnvFound(modifiedEnvFileEntries);
 
         String expectedContent = Files.contentOf(new File(EXPECTED_ENV_FILE), StandardCharsets.UTF_8);
         String resultContent = Files.contentOf(new File(VALID_ENV_FILE_NAME + "-injected"), StandardCharsets.UTF_8);

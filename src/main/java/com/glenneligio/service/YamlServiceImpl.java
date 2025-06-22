@@ -24,7 +24,7 @@ public class YamlServiceImpl implements YamlService {
 
     @Override
     public List<YamlFileEnvEntry> getYamlFileEnvEntries(String yamlFileLocation, String containerImageName) throws FileNotFoundException, JsonProcessingException, AccessDeniedException {
-        logger.info("Checking the yaml file: {}", yamlFileLocation);
+        System.out.println(String.format("Checking the yaml file: %s", yamlFileLocation));
         File file = new File(yamlFileLocation);
         if(!file.exists()) {
             logger.info("File does not exist");
@@ -32,16 +32,16 @@ public class YamlServiceImpl implements YamlService {
         }
 
         if(!file.isFile()) {
-            logger.info("Yaml file location specified is not a file");
+            System.out.println("Yaml file location specified is not a file");
             throw new RuntimeException("Path specified is not a file");
         }
 
         if(!file.canRead()) {
-            logger.info("Current user does not have read permission on the yaml file");
+            System.out.println("Current user does not have read permission on the yaml file");
             throw new AccessDeniedException(yamlFileLocation);
         }
 
-        logger.info("Reading yaml file {}", yamlFileLocation);
+        System.out.println(String.format("Reading yaml file %s", yamlFileLocation));
         List<YamlFileEnvEntry> result = new ArrayList<>();
         String containersPath = "spec.template.spec.containers";
         Yaml yaml = new Yaml();

@@ -20,7 +20,7 @@ public class PropertiesServiceImpl implements PropertiesService{
 
     @Override
     public List<PropertiesFileEntry> getPropertiesFileEntriesFromPropertiesFile(String propertiesFileLocation) throws IOException {
-        logger.info("Reading {}", propertiesFileLocation);
+        System.out.println(String.format("Reading %s", propertiesFileLocation));
         List<PropertiesFileEntry> result = new ArrayList<>();
 
         String fileContent;
@@ -36,7 +36,7 @@ public class PropertiesServiceImpl implements PropertiesService{
                 // removing the comment portion of the line
                 int commentCharIndex = entryValue.indexOf("#");
                 if(commentCharIndex != -1) {
-                    logger.info("Cleaning the line by removing comment in line {}", entryValue);
+                    logger.debug("Cleaning the line by removing comment in line {}", entryValue);
                     entryValue = entryValue.substring(0, commentCharIndex).trim();
                 }
 
@@ -81,9 +81,9 @@ public class PropertiesServiceImpl implements PropertiesService{
                 // checks if the prop value DOES NOT matches the regex for valid injectable prop value
                 // if it doesnt, create PropertiesFileEntry with name as the
                 if(!propValue.matches("^\\s*\\$\\{[a-zA-Z0-9_]+(:[^}]+|:)?\\}\\s*$")) {
-                    logger.info("Invalid syntax for property entry value: {}", entryValue);
+                    logger.debug("Invalid syntax for property entry value: {}", entryValue);
                     PropertiesFileEntry invalidEntry = new PropertiesFileEntry(StringUtils.trimToEmpty(entryValue), null, null, false, false, lineNumberIndex, false);
-                    logger.info("Property entry: {}", invalidEntry);
+                    logger.debug("Property entry: {}", invalidEntry);
                     result.add(invalidEntry);
                     lineNumberIndex++;
                     continue;
@@ -138,7 +138,7 @@ public class PropertiesServiceImpl implements PropertiesService{
                         ":" +
                         StringUtils.trimToEmpty(propEntry.getEnvValueToInject()) +
                         "}";
-                logger.info("Writing on file: {}", fileEntry);
+                logger.debug("Writing on file: {}", fileEntry);
                 fileContents.set(i-1, fileEntry);
                 propEntry.setInjected(true);
             }
@@ -146,7 +146,7 @@ public class PropertiesServiceImpl implements PropertiesService{
 
         File newFileToCreate = new File(propertiesFileLocation + "-injected");
         if(newFileToCreate.exists()) {
-            logger.info("File already exist, deleting and creating new one");
+            logger.debug("File already exist, deleting and creating new one");
             newFileToCreate.delete();
             newFileToCreate.createNewFile();
         }
@@ -156,36 +156,36 @@ public class PropertiesServiceImpl implements PropertiesService{
 
     @Override
     public void printReport(List<PropertiesFileEntry> propertiesFileEntries) {
-        logger.info("********** Invalid entries or empty lines *****************************************");
+        System.out.println("********** Invalid entries or empty lines *****************************************");
         propertiesFileEntries.stream()
                 .filter(entry -> !entry.isValid())
-                .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
+                .forEach(entry -> System.out.println(String.format("%s. %s", entry.getLineNumber(), entry.getName())));
 
-        logger.info("********** Valid entries with no environment variable injected *********************");
+        System.out.println("********** Valid entries with no environment variable injected *********************");
         propertiesFileEntries.stream()
                 .filter(PropertiesFileEntry::isValid)
                 .filter(entry -> !entry.isValueInjected())
-                .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
+                .forEach(entry -> System.out.println(String.format("%s. %s", entry.getLineNumber(), entry.getName())));
 
-        logger.info("********** Valid entries whose environment variable is not present in yaml ********");
+        System.out.println("********** Valid entries whose environment variable is not present but added in yaml ********");
         propertiesFileEntries.stream()
                 .filter(PropertiesFileEntry::isValid)
                 .filter(PropertiesFileEntry::isValueInjected)
                 .filter(entry -> !entry.isPresentInYaml())
-                .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
+                .forEach(entry -> System.out.println(String.format("%s. %s", entry.getLineNumber(), entry.getName())));
 
-        logger.info("********** Valid entries that was injected with environment variables **************");
+        System.out.println("********** Valid entries that was injected with environment variables **************");
         propertiesFileEntries.stream()
                 .filter(PropertiesFileEntry::isValid)
                 .filter(PropertiesFileEntry::isInjected)
-                .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
+                .forEach(entry -> System.out.println(String.format("%s. %s", entry.getLineNumber(), entry.getName())));
 
-        logger.info("********** Valid entries whose environment variable was a secret *******************");
+        System.out.println("********** Valid entries whose environment variable was a secret *******************");
         propertiesFileEntries.stream()
                 .filter(PropertiesFileEntry::isValid)
                 .filter(PropertiesFileEntry::isEnvValueSecret)
                 .filter(entry -> !entry.isInjected())
-                .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
+                .forEach(entry -> System.out.println(String.format("{}. {}", entry.getLineNumber(), entry.getName())));
     }
 
     @Override

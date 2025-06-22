@@ -18,15 +18,18 @@ import java.util.stream.Collectors;
 
 public class EnvServiceImpl implements EnvService {
 
+    private File envFile;
+
     private static final Logger logger = LoggerFactory.getLogger(EnvServiceImpl.class);
 
     @Override
     public List<EnvFileEntry> readOrCreateEnvFile(String envFileLocation) throws IOException {
         List<EnvFileEntry> envFileEntries = new ArrayList<>();
-        File envFile = new File(envFileLocation);
+        setEnvFile(new File(envFileLocation));
+
         if(!envFile.exists() && envFile.createNewFile()) {
-           logger.info("Env file does not exist, created a new one");
-           return envFileEntries;
+            System.out.println("Env file does not exist, created a new one");
+            return envFileEntries;
         }
 
         List<String> envFileLines = Files.readAllLines(Paths.get(envFileLocation));
@@ -42,7 +45,7 @@ public class EnvServiceImpl implements EnvService {
 
             // removed substring after # to clean up comments
             if(commentCharIndex != -1) {
-                logger.info("Cleaning the line by removing comment in line {}", lineNumber);
+                logger.debug("Cleaning the line by removing comment in line {}", lineNumber);
                 envFileEntryValue = envFileEntry.substring(0, commentCharIndex).trim();
             }
 
@@ -96,7 +99,7 @@ public class EnvServiceImpl implements EnvService {
     }
 
     @Override
-    public void injectEnvFound(List<EnvFileEntry> envFileEntries, String envFileLocation) throws IOException {
+    public void injectEnvFound(List<EnvFileEntry> envFileEntries) throws IOException {
         Map<Integer, EnvFileEntry> fileContents = new HashMap<>();
 
         // sort the envFileEntries by line number in ascending order
@@ -111,7 +114,7 @@ public class EnvServiceImpl implements EnvService {
                 // sort by line number again in descending order
                 .sorted(Comparator.comparingInt(mapEntry -> mapEntry.getValue().getLineNumber()))
                 .map(entry -> {
-                    logger.info("Entry value: {}", entry.getValue());
+                    logger.debug("Entry value: {}", entry.getValue());
                     EnvFileEntry envFileEntry = entry.getValue();
                     String fileEntry = entry.getValue().getName();
 
@@ -141,7 +144,8 @@ public class EnvServiceImpl implements EnvService {
                 })
                 .collect(Collectors.toList());
 
-        File injectedFile = new File(envFileLocation + "-injected");
+        File injectedFile = new File(envFile.getAbsolutePath() + "-injected");
+        System.out.println(String.format("Created injected file: %s", injectedFile.getAbsolutePath()));
 
         // remove the existing injectedFile, and create new file
         if(injectedFile.exists()) {
@@ -149,54 +153,54 @@ public class EnvServiceImpl implements EnvService {
             injectedFile.createNewFile();
         }
 
-        Files.write(Paths.get(envFileLocation + "-injected"), fileLineEntries, StandardCharsets.UTF_8);
+        Files.write(Paths.get(injectedFile.getAbsolutePath()), fileLineEntries, StandardCharsets.UTF_8);
     }
 
     @Override
     public void printReport(List<EnvFileEntry> envFileEntries) {
         if(envFileEntries.isEmpty()) {
-            logger.info("Empty list of env file entries. Will not be printing report");
+            System.out.println("Empty list of env file entries. Will not be printing report");
             return;
         }
 
-        logger.info("***************** Invalid entries or empty lines ************************************");
+        System.out.println("***************** Invalid entries or empty lines ************************************");
         envFileEntries.stream()
                 .filter(entry -> !entry.isValid())
-                .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
+                .forEach(entry -> System.out.println(String.format("%s. %s", entry.getLineNumber(), entry.getName())));
 
-        logger.info("***************** Valid entries with no counterpart in .yml file ********************");
+        System.out.println("***************** Valid entries with no counterpart in .yml file ********************");
         envFileEntries.stream()
                 .filter(EnvFileEntry::isValid)
                 .filter(entry -> !entry.isFromYamlEnv())
                 .filter(entry -> !entry.isPresentInYaml())
-                .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
+                .forEach(entry -> System.out.println(String.format("%s. %s", entry.getLineNumber(), entry.getName())));
 
-        logger.info("***************** Valid entries that was injected with environment variables ********");
+        System.out.println("***************** Valid entries that was injected with environment variables ********");
         envFileEntries.stream()
                 .filter(EnvFileEntry::isValid)
                 .filter(EnvFileEntry::isInjected)
-                .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
+                .forEach(entry -> System.out.println(String.format("%s. %s", entry.getLineNumber(), entry.getName())));
 
-        logger.info("***************** Valid entries whose environment variable was a secret *************");
+        System.out.println("***************** Valid entries whose environment variable was a secret *************");
         envFileEntries.stream()
                 .filter(EnvFileEntry::isValid)
                 .filter(EnvFileEntry::isEnvValueSecret)
                 .filter(entry -> !entry.isFromYamlEnv())
-                .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
+                .forEach(entry -> System.out.println(String.format("%s. %s", entry.getLineNumber(), entry.getName())));
 
-        logger.info("***************** Entries in .yaml file that was not present in .env file ************");
+        System.out.println("***************** Entries in .yaml file that was not present initially and added in .env file ************");
         envFileEntries.stream()
                 .filter(EnvFileEntry::isValid)
                 .filter(EnvFileEntry::isFromYamlEnv)
                 .filter(entry -> !entry.isEnvValueSecret())
-                .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
+                .forEach(entry -> System.out.println(String.format("%s. %s", entry.getLineNumber(), entry.getName())));
 
-        logger.info("***************** Secret entries in .yaml file that was not present in .env file *****");
+        System.out.println("***************** Secret entries in .yaml file that was not present in .env file *****");
         envFileEntries.stream()
                 .filter(EnvFileEntry::isValid)
                 .filter(EnvFileEntry::isFromYamlEnv)
                 .filter(EnvFileEntry::isEnvValueSecret)
-                .forEach(entry -> logger.info("{}. {}", entry.getLineNumber(), entry.getName()));
+                .forEach(entry -> System.out.println(String.format("%s. %s", entry.getLineNumber(), entry.getName())));
     }
 
     @Override
@@ -256,5 +260,9 @@ public class EnvServiceImpl implements EnvService {
             }
         }
         return currentEnvFileEnties;
+    }
+
+    public void setEnvFile(File envFile) {
+        this.envFile = envFile;
     }
 }

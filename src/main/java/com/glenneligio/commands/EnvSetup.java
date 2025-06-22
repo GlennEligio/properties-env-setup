@@ -38,6 +38,10 @@ public class EnvSetup implements Runnable {
     @Required
     protected String containerImageName;
 
+    public EnvSetup() {
+        // Default constructor for dependency injection
+    }
+
     public EnvSetup(String envFile, String yamlFile, String containerImageName) {
         this.envFile = envFile;
         this.yamlFile = yamlFile;
@@ -51,16 +55,16 @@ public class EnvSetup implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
-        logger.info("Env file to be populated: {}", envFile);
-        logger.info("K8s yaml file to be used: {}", yamlFile);
+        System.out.println(String.format("Env file to be populated: %s", envFile));
+        System.out.println(String.format("K8s yaml file to be used: %s", yamlFile));
 
         // Reading the properties file
         EnvService envService = new EnvServiceImpl();
         List<EnvFileEntry> envFileEntries = envService.readOrCreateEnvFile(envFile);
 
-        logger.info("Env file entries");
+        logger.debug("Env file entries");
         for(EnvFileEntry entry : envFileEntries) {
-            logger.info("Entry - name: {}, defaultValue: {}, isValid: {}",
+            logger.debug("Entry - name: {}, defaultValue: {}, isValid: {}",
                     StringUtils.trimToEmpty(entry.getName()),
                     StringUtils.trimToEmpty(entry.getDefaultValue()),
                     entry.isValid());
@@ -68,9 +72,9 @@ public class EnvSetup implements Runnable {
 
         YamlService yamlService = new YamlServiceImpl();
         List<YamlFileEnvEntry> yamlEnvEntries = yamlService.getYamlFileEnvEntries(yamlFile, containerImageName);
-        logger.info("YAML env entries");
+        logger.debug("YAML env entries");
         for(YamlFileEnvEntry entry : yamlEnvEntries) {
-            logger.info("Entry - name: {}, value: {}, isSecret: {}", StringUtils.trimToEmpty(entry.getEnvName()), StringUtils.trimToEmpty(entry.getEnvValue()), entry.isSecret());
+            logger.debug("Entry - name: {}, value: {}, isSecret: {}", StringUtils.trimToEmpty(entry.getEnvName()), StringUtils.trimToEmpty(entry.getEnvValue()), entry.isSecret());
         }
 
         envService.populateEnvFileEntriesWithValuesFromYaml(envFileEntries, yamlEnvEntries);
@@ -80,7 +84,7 @@ public class EnvSetup implements Runnable {
 
         // add new env from .yml file that was not present in .env file
         envFileEntries.addAll(missingEnvFromYaml);
-        envService.injectEnvFound(envFileEntries, envFile);
+        envService.injectEnvFound(envFileEntries);
         envService.printReport(envFileEntries);
     }
 }

@@ -10,6 +10,9 @@
         <module name="properties-env-setup" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="properties-env-setup" target="11" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

@@ -38,6 +38,11 @@ Command used to setup the application.properties file using k8s yaml file by inj
 
 ## Versions
 
+### PES-007 - 1.3 - 6/22/25
+- Changed the logging
+  - Removed use of logging.info() for important log to prevent classes from being in the log
+  - Set other logs to debug to prevent them from cluttering the log output
+
 
 ### PES-006 - 1.2 - 3/13/25
 - Fixed issue where the jar file does not start due to java.lang.reflect.InvocationTargetException
@@ -47,4 +52,3 @@ Command used to setup the application.properties file using k8s yaml file by inj
 ### 1.1
 - Updated the regex for validating app.prop value
 - Fix issue where app.prop with empty string as default value and those whose ENV injected are in lowercase is considered invalid
-  

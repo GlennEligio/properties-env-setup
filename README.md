@@ -35,6 +35,9 @@ Command used to setup the application.properties file using k8s yaml file by inj
 1. java -jar .\properties-env-setup-1.0-SNAPSHOT.jar setup properties -p .\test-data\application.properties -y .\test-data\sample-deployment.yml -i client-service
 2. To show debug logs, add this on VM options: -Dorg.slf4j.simpleLogger.defaultLogLevel=debug
 
+## JAR files for version
+- https://drive.google.com/drive/folders/1BAxZ-4pwgjhC-xPtkrCn_QLmULqSxBcj?usp=sharing
+
 
 ## Versions
 

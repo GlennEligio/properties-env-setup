@@ -31,7 +31,7 @@ public class YamlServiceImplTest {
     private static final String NON_READABLE_YAML_FILE_NAME = "src/test/resources/deployment-non-readable.yml";
     private static final String NON_CONTAINER_FIELD = "src/test/resources/deployment-no-container.yml";
     private static final String NON_MATCHING_CONTAINER_ITEM = "src/test/resources/deployment-no-matching-container.yml";
-    private static final String CONTAINER_IMAGE = "client-service";
+    private static final String CONTAINER_NAME = "client-service";
     private YamlFileEnvEntry y0, y1, y2, y3, y4, y5, y6;
     private List<YamlFileEnvEntry> validYamlEnvFileEntries = new ArrayList<>();
 
@@ -57,14 +57,14 @@ public class YamlServiceImplTest {
     @Test
     void givenYamlFileDoesNotExist_WhenGetYamlFileEnvEntriesIsCalled_throwException() {
         YamlService yamlService = new YamlServiceImpl();
-        Assertions.assertThrows(FileNotFoundException.class, () -> yamlService.getYamlFileEnvEntries(NON_EXISTENT_FILE, CONTAINER_IMAGE));
+        Assertions.assertThrows(FileNotFoundException.class, () -> yamlService.getYamlFileEnvEntries(NON_EXISTENT_FILE, CONTAINER_NAME));
     }
 
     // 2. if the yaml file location is a directory
     @Test
     void givenYamlFileLocationIsADirectory_WhenGetYamlFileEnvEntriesIsCalled_throwException() {
         YamlService yamlService = new YamlServiceImpl();
-        Assertions.assertThrows(RuntimeException.class, () -> yamlService.getYamlFileEnvEntries(DIRECTORY_NAME, CONTAINER_IMAGE));
+        Assertions.assertThrows(RuntimeException.class, () -> yamlService.getYamlFileEnvEntries(DIRECTORY_NAME, CONTAINER_NAME));
     }
 
     // 3. if the yaml file location is not readable
@@ -74,28 +74,28 @@ public class YamlServiceImplTest {
     @Disabled
     void givenYamlFileLocationIsNotReadable_WhenGetYamlFileEnvEntriesIsCalled_throwException() throws IOException {
         YamlService yamlService = new YamlServiceImpl();
-        Assertions.assertThrows(AccessDeniedException.class, () -> yamlService.getYamlFileEnvEntries(NON_READABLE_YAML_FILE_NAME, CONTAINER_IMAGE));
+        Assertions.assertThrows(AccessDeniedException.class, () -> yamlService.getYamlFileEnvEntries(NON_READABLE_YAML_FILE_NAME, CONTAINER_NAME));
     }
 
     // 4. if the yaml file have no 'containers' arrayNode
     @Test
     void givenYamlContentHasNoContainersField_WhenGetYamlFileEnvEntriesIsCalled_throwException() {
         YamlService yamlService = new YamlServiceImpl();
-        Assertions.assertThrows(RuntimeException.class, () -> yamlService.getYamlFileEnvEntries(NON_CONTAINER_FIELD, CONTAINER_IMAGE));
+        Assertions.assertThrows(RuntimeException.class, () -> yamlService.getYamlFileEnvEntries(NON_CONTAINER_FIELD, CONTAINER_NAME));
     }
 
     // 5. if the yaml file have no item in 'containers' arrayNode that matches the imageName input
     @Test
     void givenYamlFileContainersArrayDoNotHaveTheImageInput_WhenGetYamlFileEnvEntriesIsCalled_throwException() {
         YamlService yamlService = new YamlServiceImpl();
-        Assertions.assertThrows(RuntimeException.class, () -> yamlService.getYamlFileEnvEntries(NON_MATCHING_CONTAINER_ITEM, CONTAINER_IMAGE));
+        Assertions.assertThrows(RuntimeException.class, () -> yamlService.getYamlFileEnvEntries(NON_MATCHING_CONTAINER_ITEM, CONTAINER_NAME));
     }
 
     // 6. if the yaml file no env field - returns empty array
     @Test
     void givenYamlFileEnvFieldIsMissing_WhenGetYamlFileEnvEntriesIsCalled_returnEmptyList() throws AccessDeniedException, FileNotFoundException, JsonProcessingException {
         YamlService yamlService = new YamlServiceImpl();
-        List<YamlFileEnvEntry> result = yamlService.getYamlFileEnvEntries(VALID_YAML_WITH_NO_CONTENT_FILE_NAME, CONTAINER_IMAGE);
+        List<YamlFileEnvEntry> result = yamlService.getYamlFileEnvEntries(VALID_YAML_WITH_NO_CONTENT_FILE_NAME, CONTAINER_NAME);
         Assertions.assertTrue(result.isEmpty());
     }
 
@@ -103,7 +103,7 @@ public class YamlServiceImplTest {
     @Test
     void givenYamlFileEnvFieldIsPresent_WhenGetYamlFileEnvEntriesIsCalled_returnCorrespondingList() throws AccessDeniedException, FileNotFoundException, JsonProcessingException {
         YamlService yamlService = new YamlServiceImpl();
-        List<YamlFileEnvEntry> result = yamlService.getYamlFileEnvEntries(VALID_YAML_FILE_NAME, CONTAINER_IMAGE);
+        List<YamlFileEnvEntry> result = yamlService.getYamlFileEnvEntries(VALID_YAML_FILE_NAME, CONTAINER_NAME);
         Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals(validYamlEnvFileEntries, result);
     }

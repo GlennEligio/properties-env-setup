@@ -33,23 +33,19 @@ public class EnvSetup implements Runnable {
     @Required
     protected String yamlFile;
 
-    @Option(name = {"-i" , "--image"},
-            description = "Image name of the container used")
+    @Option(name = {"-c" , "--container"},
+            description = "Container name where the env entries used")
     @Required
-    protected String containerImageName;
+    protected String containerName;
 
     public EnvSetup() {
         // Default constructor for dependency injection
     }
 
-    public EnvSetup(String envFile, String yamlFile, String containerImageName) {
+    public EnvSetup(String envFile, String yamlFile, String containerName) {
         this.envFile = envFile;
         this.yamlFile = yamlFile;
-        this.containerImageName = containerImageName;
-    }
-
-    public EnvSetup() {
-
+        this.containerName = containerName;
     }
 
     @SneakyThrows
@@ -71,7 +67,7 @@ public class EnvSetup implements Runnable {
         }
 
         YamlService yamlService = new YamlServiceImpl();
-        List<YamlFileEnvEntry> yamlEnvEntries = yamlService.getYamlFileEnvEntries(yamlFile, containerImageName);
+        List<YamlFileEnvEntry> yamlEnvEntries = yamlService.getYamlFileEnvEntries(yamlFile, containerName);
         logger.debug("YAML env entries");
         for(YamlFileEnvEntry entry : yamlEnvEntries) {
             logger.debug("Entry - name: {}, value: {}, isSecret: {}", StringUtils.trimToEmpty(entry.getEnvName()), StringUtils.trimToEmpty(entry.getEnvValue()), entry.isSecret());

@@ -7,3 +7,4 @@ spec:
             - name: sample-env-for-light-proxy
               value: sample-value
         - image: client-service
+          name: client-service
